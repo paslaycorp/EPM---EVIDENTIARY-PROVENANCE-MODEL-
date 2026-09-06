@@ -1,225 +1,89 @@
-# EPM---EVIDENTIARY-PROVENANCE-MODEL-
-Dpies successor including fap-core, &amp; fap-insurance. 
-EPM — Epistemic Trust Architecture
+# EPM — Evidentiary Provenance Model
 
-Status: ACTIVE RESEARCH · NOT ARCHITECTURE-COMMITTED
+**Epistemic Trust Architecture**  
+**Status: ACTIVE RESEARCH · NOT ARCHITECTURE-COMMITTED**
 
-EPM is a research effort into epistemic trust architecture: how systems distinguish what is observed, evidenced, derived, inferred, predicted, unresolved, and authorized for action.
+EPM is a research program for epistemic trust architecture: how systems distinguish what is observed, evidenced, derived, inferred, predicted, unresolved, constrained, invalidated, and authorized for action.
 
-This repository contains working specifications, adversarial tests, counterexamples, and research checkpoints.
+> **Research before architecture.**
 
-«Research before architecture.»
+## Current research hypothesis
 
-Current Research Area
+### Two-Stage Trust Architecture — Constrained Future Answer-Space
 
-Two-Stage Trust Architecture — Constrained Future Answer-Space
+The current hypothesis separates:
 
-The current hypothesis investigates a distinction between:
+1. **constraining the answer-space** — establishing which answers remain admissible; and
+2. **resolving the answer** — establishing which admissible answer is actually true.
 
-- resolving an answer, and
-- resolving the structure of the unresolved answer-space.
+A system may therefore know that the eventual answer lies in `{X, Y}` without knowing whether the answer is X or Y. It may also identify a discriminator capable of resolving that distinction later.
 
-Working formulation:
+Stage 1 does **not** establish X or Y. It establishes structure around the unresolved question.
 
-Present constraints → future answer-space
+## Epistemic ladder
 
-An unresolved answer may have a constrained structure of admissible possibilities without the answer itself being known.
+`OBSERVED → EVIDENCED → DERIVED → INFERRED → PREDICTED`
 
-For example:
+The current research treats constrained answer-space as potentially **orthogonal** to this ladder rather than as a new epistemic rung.
 
-CURRENT KNOWLEDGE
+## Critical trust boundary
 
-N1 ... N6
-   │
-   ▼
-Constrain answer space
-   │
-   ├── X
-   └── Y
-        │
-        ▼
-Identify discriminator D
+`same evidence + more computation ≠ new epistemic fact`
 
+Computation may expose a consequence already logically entailed by existing evidence. That consequence can be valuable while remaining a derivation rather than new evidence.
 
-FUTURE RESOLUTION
+## Adversarial program
 
-D
-│
-├── X
-└── Y
+The repository now contains a structured research library covering:
 
-Stage 1 does not establish X or Y.
-
-It establishes that the eventual resolution must discriminate within "{X, Y}", and may identify information capable of performing that discrimination.
-
-This is currently a hypothesis, not a committed architecture.
-
-Important Distinctions
-
-The research currently examines four potentially distinct concepts:
-
-1. Resolution — establishing the answer.
-2. Constraint resolution — establishing which answers remain admissible.
-3. Discriminator identification — establishing what future information could distinguish the remaining alternatives.
-4. Prediction — asserting what the eventual answer is likely to be.
-
-The current hypothesis is that constrained answer-space may be orthogonal to the epistemic ladder, rather than another epistemic rung.
-
-OBSERVED
-   ↓
-EVIDENCED
-   ↓
-DERIVED
-   ↓
-INFERRED
-   ↓
-PREDICTED
-
-A constrained answer-space does not automatically belong on this ladder.
-
-Critical Trust Boundary
-
-A central question is:
-
-same evidence + more computation
-        ≠
-new epistemic fact
-
-with an important qualification:
-
-computation may expose a consequence
-already logically entailed by the evidence
-without creating new evidence.
-
-Therefore a derived constraint must not silently become evidence.
-
-Adversarial Research
-
-The current work is intentionally adversarial.
-
-Primary attacks:
-
-1. Constraint entailment
-2. Discriminator integrity
-3. UNKNOWN / DEFER / Governor interaction
-
-Additional tests include:
-
+- constraint entailment
 - derivation vs. epistemic closure
-- multiple discriminators
+- discriminator integrity and sufficiency
+- multiple and dependent discriminators
 - constraint failure and revision
 - circular resolution
 - adversarial narrowing
-- constraint monotonicity
-- discriminator sufficiency
-- discriminator independence
+- UNKNOWN / DEFER / Governor behavior
 - answer-space granularity
 - computational discovery
 - provenance continuity
 - dependency propagation
 - expectation leakage
+- counterexamples and model variants
 
-A proposed distinction should survive adversarial counterexamples before architectural integration is considered.
+## Repository map
 
-Non-Claims
+- `EPM_LIBRARY/` — research-library index and terminology
+- `01_CANONICAL/` — canonical architecture hypothesis
+- `02_HYPOTHESIS/` — formal hypothesis statement
+- `03_SPEC/` — adversarial specification
+- `04_TESTS/` — adversarial test suite
+- `05_COUNTEREXAMPLES/` — failure cases
+- `06_VARIANTS/` — alternative formulations
+- `07_DECISION_LOG/` — research decisions and reopen triggers
+- `08_GOVERNANCE/` — provenance and change-control rules
 
-This repository does not currently claim that:
+## Non-claims
+
+This repository does **not** currently claim that:
 
 - an unresolved answer has been resolved;
 - a constraint is evidence;
-- additional computation necessarily creates a new epistemic fact;
-- a discriminator predicts the answer;
+- computation necessarily creates a new epistemic fact;
+- a discriminator predicts its outcome;
 - there is only one valid discriminator;
-- constrained answer-space is an EPM state;
-- constrained answer-space should become a new enum;
-- constrained answer-space should become a new epistemic rung;
-- constrained answer-space provides authorization to act.
+- constrained answer-space is an EPM state or new enum;
+- constrained answer-space is a new epistemic rung; or
+- constrained answer-space authorizes action.
 
-Repository Structure
+## Research lifecycle
 
-01_CANONICAL/
-    two-stage-trust-architecture.md
+`KEEP → ISOLATE → ATTACK → FORMALIZE → ONLY THEN CONSIDER ARCHITECTURAL INTEGRATION`
 
-02_HYPOTHESIS/
-    constrained-future-answer-space.md
+## Provenance
 
-03_SPEC/
-    two-stage-trust-adversarial-spec.md
+Claims about earlier EPM artifacts remain provisional until their source material is directly reviewed. The research library therefore preserves distinctions among evidence, derivations, constraints, discriminators, invalidations, revisions, dependencies, and architectural decisions.
 
-04_TESTS/
-    test-derivation-vs-closure.md
-    test-constraint-entailment.md
-    test-discriminator-integrity.md
-    test-multiple-discriminators.md
-    test-constraint-failure.md
-    test-circular-resolution.md
-    test-adversarial-narrowing.md
-    test-unknown-defer-governor.md
-    test-constraint-monotonicity.md
-    test-discriminator-sufficiency.md
-    test-discriminator-independence.md
-    test-answer-space-granularity.md
-    test-computational-discovery.md
-    test-provenance-continuity.md
-    test-dependency-propagation.md
-    test-expectation-leakage.md
+## License
 
-05_COUNTEREXAMPLES/
-    singleton-answer-space.md
-    circular-discriminator.md
-    poisoned-constraint.md
-    false-narrowing.md
-    expected-answer-leakage.md
-
-06_VARIANTS/
-    two-stage-basic.md
-    two-stage-multiple-discriminators.md
-    two-stage-revisable-constraints.md
-    two-stage-orthogonal-to-epistemic-ladder.md
-
-07_DECISION_LOG/
-    two-stage-trust-status.md
-
-Research Status
-
-Current decision:
-
-KEEP
-  ↓
-ISOLATE
-  ↓
-ATTACK
-  ↓
-FORMALIZE
-  ↓
-ONLY THEN CONSIDER ARCHITECTURAL INTEGRATION
-
-Current status:
-
-HIGH-VALUE ARCHITECTURAL HYPOTHESIS
-
-Not yet:
-
-- committed architecture
-- new enum
-- new epistemic rung
-- authorization mechanism
-
-Provenance
-
-Research claims concerning earlier EPM artifacts remain provisional until their source files are directly reviewed.
-
-This repository should preserve provenance for:
-
-- evidence
-- constraints
-- derivations
-- discriminators
-- invalidations
-- revisions
-- downstream dependencies
-- architectural decisions
-
-License
-
-This project is licensed under the MIT License. See ""LICENSE"" (LICENSE).
+MIT. See [`LICENSE`](LICENSE).
