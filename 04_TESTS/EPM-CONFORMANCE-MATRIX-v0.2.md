@@ -10,11 +10,11 @@
 
 Repository inspection is implementation evidence, not runtime conformance evidence. A row is marked **PASS** only where the current integrated branch has fresh executable coverage through the claimed implementation boundary. A specification whose required runtime abstraction does not exist in that boundary is marked **NOT IMPLEMENTED / EXCLUDED**, rather than being simulated with a tautological test or by inventing a new subsystem solely to satisfy the matrix.
 
-The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c21-enforcement`, commit `3fd80d6b2acb5e0bf72860fa46b0b080b4fd9992`:
+The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c21-enforcement`, commit `2ef2600741860d3c16f13f37cd3053a96e5573a2`:
 
-- Production Verification #61 — **SUCCESS**
-- `pytest -q` — **60 passed, 1 warning**
-- FAP-Insurance CI/CD #181 — **SUCCESS**
+- Production Verification #63 — **SUCCESS**
+- `pytest -q` — **61 passed, 1 warning**
+- FAP-Insurance CI/CD #183 — **SUCCESS**
 
 ## Evidence-state vocabulary
 
@@ -27,7 +27,7 @@ The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c
 
 | ID | Invariant / failure mode | Current executable evidence or boundary determination | State | Priority |
 |---|---|---|---|---|
-| C-01 | Epistemic status conservation | `test_epm_c01_target_cannot_promote_changed_source_without_new_evidence`; exposed `CHANGED → PRESERVED` promotion defect, then remediated by conserving the weaker source state. Re-executed in #61. | **PASS** | Critical |
+| C-01 | Epistemic status conservation | `test_epm_c01_target_cannot_promote_changed_source_without_new_evidence`; exposed `CHANGED → PRESERVED` promotion defect, then remediated by conserving the weaker source state. Re-executed in #63. | **PASS** | Critical |
 | C-02 | Provenance continuity | `test_epm_c02_broken_provenance_dependency_is_detected_by_audit_chain`; mutation of stored FAP-Core provenance breaks the recomputed chain. | **PASS** | Critical |
 | C-03 | Adversarial narrowing | T-07 requires first-class constraint provenance, entailment, assumptions, and governance review. FAP/DPIE has context-preservation machinery but no general constraint/narrowing object or enforcement contract. | **NOT IMPLEMENTED / EXCLUDED** | Critical |
 | C-04 | Constraint ≠ resolution | No first-class answer-space / constrained / resolved state exists in the FAP/DPIE runtime. The prior set-arithmetic sentinel is not implementation evidence. | **NOT IMPLEMENTED / EXCLUDED** | Critical |
@@ -47,7 +47,7 @@ The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c
 | C-18 | Temporal preservation | `tests/test_epm_c18_runtime.py`; changed temporal context without proof fails closed, explicit preservation permits crossing, unchanged-time control preserves normal behavior. | **PASS** | Critical |
 | C-19 | UNKNOWN preservation | `test_runtime_preserves_unknown_as_defer` and local UNKNOWN test; UNKNOWN remains UNKNOWN and produces DEFER rather than fabricated invalidity. | **PASS** | Critical |
 | C-20 | Epistemic inflation through composition | `test_epm_c20_individually_valid_components_do_not_authorize_unrelated_composition`; unrelated preserved components produce `UNKNOWN / COMPOSITION_UNRESOLVED / QUARANTINE`. | **PASS** | Critical |
-| C-21 | Temporal non-retroactivity | A focused helper gate exists in `assess_fap_transition()` and passes tests when a trusted `evidence_available_at` value is supplied. However the production `VerifyClaimResponse` path currently calls DPIE with only the verdict and supplies neither evidence-availability provenance nor a validated temporal bridge. The helper therefore does not establish end-to-end production conformance. | **NOT IMPLEMENTED / EXCLUDED** | Critical |
+| C-21 | Temporal non-retroactivity | A focused helper gate exists in `assess_fap_transition()` and now rejects absent, unvalidated, unjustified, and malformed temporal bridges when a trusted `evidence_available_at` is supplied. However the production `VerifyClaimResponse` path currently calls DPIE with only the verdict and supplies neither evidence-availability provenance nor a validated temporal bridge. The helper therefore does not establish end-to-end production conformance. | **NOT IMPLEMENTED / EXCLUDED** | Critical |
 | C-22 | Provenance tamper visibility | `test_epm_c22_compromised_chain_cannot_serve_authoritative_record`; tamper first compromises the hash chain, then authoritative audit reads raise `AuditIntegrityError` rather than serving the altered record. | **PASS** | Critical |
 | C-23 | Materiality boundary | Existing assurance test proves non-material transitions preserve without unnecessary proof, while declared material transitions require explicit preservation. | **PASS** | High |
 | C-24 | Misapplication without tampering | `test_perfect_artifact_can_be_misapplied_without_tampering`; intact evidence used outside its application context becomes `INVALIDATED / MISAPPLICATION` and fails closed. | **PASS** | Critical |
@@ -70,7 +70,7 @@ The gate produced substantive findings rather than merely confirming source stru
 
 1. **C-01 status conservation:** a non-material transition with a weaker source state could return the stronger target-declared state. The evaluator now conserves the source state and defers.
 2. **C-22 tamper authority:** chain corruption was detectable but a corrupted record could still be returned through authoritative audit reads. Audit reads now fail closed on a compromised chain.
-3. **C-21 production integration boundary:** a temporal-admissibility helper was added and tested, but the production response path does not provide a trustworthy evidence-availability timestamp or validated bridge. C-21 is therefore explicitly excluded rather than falsely promoted to PASS.
+3. **C-21 production integration boundary:** a temporal-admissibility helper was added and hardened, but the production response path does not provide a trustworthy evidence-availability timestamp or validated bridge. C-21 is therefore explicitly excluded rather than falsely promoted to PASS.
 4. **CI authentication:** the broader CI workflow lacked the test API credential used by authenticated contract tests. A CI-only credential was added without weakening production authentication.
 
 ## Lock determination
@@ -96,11 +96,13 @@ This verdict does **not** claim that every normative EPM semantic subsystem has 
 ## Evidence anchors
 
 - FAP-Insurance PR #9, branch `recovery/epm-c21-enforcement`
-- Production Verification #61: 60 passed, 1 warning
-- FAP-Insurance CI/CD #181: success
+- FAP-Insurance head `2ef2600741860d3c16f13f37cd3053a96e5573a2`
+- Production Verification #63: 61 passed, 1 warning
+- FAP-Insurance CI/CD #183: success
 - `tests/test_epm_c01_status_conservation.py`
 - `tests/test_dpie_audit_boundary.py`
 - `tests/test_epm_c18_runtime.py`
+- `tests/test_epm_c21_runtime.py`
 - `tests/test_epm_c22_tamper_authority.py`
 - `tests/test_epm_conformance_gate.py`
 - `tests/test_dpie_assurance.py`
