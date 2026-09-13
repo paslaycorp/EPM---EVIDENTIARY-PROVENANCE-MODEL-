@@ -8,7 +8,7 @@
 
 ## Governing evidence rule
 
-Repository inspection is implementation evidence, not runtime conformance evidence. A row is marked **PASS** only where the current integrated branch has fresh executable coverage. A specification whose required runtime abstraction does not exist in the present FAP/DPIE boundary is marked **NOT IMPLEMENTED / EXCLUDED**, rather than being simulated with a tautological test or by inventing a new subsystem solely to satisfy the matrix.
+Repository inspection is implementation evidence, not runtime conformance evidence. A row is marked **PASS** only where the current integrated branch has fresh executable coverage through the claimed implementation boundary. A specification whose required runtime abstraction does not exist in that boundary is marked **NOT IMPLEMENTED / EXCLUDED**, rather than being simulated with a tautological test or by inventing a new subsystem solely to satisfy the matrix.
 
 The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c21-enforcement`, commit `3fd80d6b2acb5e0bf72860fa46b0b080b4fd9992`:
 
@@ -19,7 +19,7 @@ The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c
 ## Evidence-state vocabulary
 
 - **PASS** — fresh executable evidence demonstrates the invariant in the claimed boundary.
-- **NOT IMPLEMENTED / EXCLUDED** — the EPM invariant remains normative, but the runtime abstraction required to claim implementation conformance is absent from the present FAP/DPIE boundary. It is intentionally excluded from this implementation claim.
+- **NOT IMPLEMENTED / EXCLUDED** — the EPM invariant remains normative, but the runtime abstraction or integration required to claim conformance is absent from the present FAP/DPIE boundary. It is intentionally excluded from this implementation claim.
 - **FAIL** — executable evidence demonstrates a violation.
 - **UNVERIFIED** — implementation exists but fresh executable evidence is absent.
 
@@ -47,7 +47,7 @@ The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c
 | C-18 | Temporal preservation | `tests/test_epm_c18_runtime.py`; changed temporal context without proof fails closed, explicit preservation permits crossing, unchanged-time control preserves normal behavior. | **PASS** | Critical |
 | C-19 | UNKNOWN preservation | `test_runtime_preserves_unknown_as_defer` and local UNKNOWN test; UNKNOWN remains UNKNOWN and produces DEFER rather than fabricated invalidity. | **PASS** | Critical |
 | C-20 | Epistemic inflation through composition | `test_epm_c20_individually_valid_components_do_not_authorize_unrelated_composition`; unrelated preserved components produce `UNKNOWN / COMPOSITION_UNRESOLVED / QUARANTINE`. | **PASS** | Critical |
-| C-21 | Temporal non-retroactivity | Later evidence without a temporal bridge yields `TEMPORAL_MISMATCH` and fail-closed decision; explicit bridge and pre-available controls preserve normal evaluation. | **PASS** | Critical |
+| C-21 | Temporal non-retroactivity | A focused helper gate exists in `assess_fap_transition()` and passes tests when a trusted `evidence_available_at` value is supplied. However the production `VerifyClaimResponse` path currently calls DPIE with only the verdict and supplies neither evidence-availability provenance nor a validated temporal bridge. The helper therefore does not establish end-to-end production conformance. | **NOT IMPLEMENTED / EXCLUDED** | Critical |
 | C-22 | Provenance tamper visibility | `test_epm_c22_compromised_chain_cannot_serve_authoritative_record`; tamper first compromises the hash chain, then authoritative audit reads raise `AuditIntegrityError` rather than serving the altered record. | **PASS** | Critical |
 | C-23 | Materiality boundary | Existing assurance test proves non-material transitions preserve without unnecessary proof, while declared material transitions require explicit preservation. | **PASS** | High |
 | C-24 | Misapplication without tampering | `test_perfect_artifact_can_be_misapplied_without_tampering`; intact evidence used outside its application context becomes `INVALIDATED / MISAPPLICATION` and fails closed. | **PASS** | Critical |
@@ -56,41 +56,42 @@ The current integrated evidence baseline is FAP-Insurance branch `recovery/epm-c
 
 ### Executably conformant in the current FAP/DPIE boundary
 
-`C-01, C-02, C-08, C-14, C-15, C-16, C-17, C-18, C-19, C-20, C-21, C-22, C-23, C-24`
+`C-01, C-02, C-08, C-14, C-15, C-16, C-17, C-18, C-19, C-20, C-22, C-23, C-24`
 
 ### Normative EPM invariants intentionally outside the present implementation claim
 
-`C-03, C-04, C-05, C-06, C-07, C-09, C-10, C-11, C-12, C-13`
+`C-03, C-04, C-05, C-06, C-07, C-09, C-10, C-11, C-12, C-13, C-21`
 
-These exclusions do **not** weaken, remove, or redefine the EPM invariants. They prevent false claims that FAP/DPIE implements semantic machinery it does not currently possess. Future implementations of constraint algebra, answer-space resolution, discriminator typing, derivational closure, or circular-justification analysis must open a new executable conformance gate before those capabilities enter the claimed implementation boundary.
+These exclusions do **not** weaken, remove, or redefine the EPM invariants. They prevent false claims that FAP/DPIE implements semantic or temporal-provenance machinery it does not currently possess. Future implementations of constraint algebra, answer-space resolution, discriminator typing, derivational closure, circular-justification analysis, or evidence-availability provenance must open a new executable conformance gate before those capabilities enter the claimed implementation boundary.
 
-## Defects exposed during closure
+## Defects and boundaries exposed during closure
 
-The gate produced substantive implementation findings rather than merely confirming source structure:
+The gate produced substantive findings rather than merely confirming source structure:
 
-1. **C-21 temporal non-retroactivity:** later evidence could strengthen an earlier state without an explicit temporal bridge. A narrow runtime temporal-admissibility guard was added.
-2. **C-01 status conservation:** a non-material transition with a weaker source state could return the stronger target-declared state. The evaluator now conserves the source state and defers.
-3. **C-22 tamper authority:** chain corruption was detectable but a corrupted record could still be returned through authoritative audit reads. Audit reads now fail closed on a compromised chain.
+1. **C-01 status conservation:** a non-material transition with a weaker source state could return the stronger target-declared state. The evaluator now conserves the source state and defers.
+2. **C-22 tamper authority:** chain corruption was detectable but a corrupted record could still be returned through authoritative audit reads. Audit reads now fail closed on a compromised chain.
+3. **C-21 production integration boundary:** a temporal-admissibility helper was added and tested, but the production response path does not provide a trustworthy evidence-availability timestamp or validated bridge. C-21 is therefore explicitly excluded rather than falsely promoted to PASS.
 4. **CI authentication:** the broader CI workflow lacked the test API credential used by authenticated contract tests. A CI-only credential was added without weakening production authentication.
 
 ## Lock determination
 
 The v0.1 lock rule permits closure when critical items are either:
 
-- **PASS with executable evidence**, or
+- **PASS with executable evidence through the claimed boundary**, or
 - **NOT IMPLEMENTED and intentionally excluded from the claimed conformance boundary**.
 
 That condition is now satisfied for every critical row in this matrix.
 
 **VERDICT: FAP/DPIE EPM CONFORMANCE BOUNDARY — LOCKABLE.**
 
-This verdict does **not** claim that every normative EPM semantic subsystem has been implemented. It states that the current implementation boundary is explicitly delimited, every implemented critical invariant in that boundary has fresh executable evidence, and unimplemented semantic domains are named rather than silently treated as conformant.
+This verdict does **not** claim that every normative EPM semantic subsystem has been implemented. It states that the current implementation boundary is explicitly delimited, every implemented critical invariant in that boundary has fresh executable evidence, and unimplemented or unintegrated domains are named rather than silently treated as conformant.
 
 ## Preserved exclusions
 
 - **TVC:** outside this gate; untouched.
 - **Variant Hunter:** parked; untouched.
-- No new constraint engine, answer-space engine, discriminator subsystem, closure engine, or circular-justification subsystem was introduced merely to satisfy this matrix.
+- **C-21 production temporal non-retroactivity:** remains outside the claimed implementation boundary until evidence availability has trustworthy provenance and is carried through the actual API path.
+- No new constraint engine, answer-space engine, discriminator subsystem, closure engine, circular-justification subsystem, or fabricated temporal source was introduced merely to satisfy this matrix.
 
 ## Evidence anchors
 
@@ -104,6 +105,7 @@ This verdict does **not** claim that every normative EPM semantic subsystem has 
 - `tests/test_epm_conformance_gate.py`
 - `tests/test_dpie_assurance.py`
 - `tests/test_dpie_red_team.py`
+- `models.VerifyClaimResponse._evaluate_dpie_and_legacy_fields()` — production path currently forwards only the verdict to DPIE
 
 **Version:** v0.2  
 **Gate state:** CRITICAL GATE CLOSED / BOUNDARY LOCKABLE  
