@@ -52,6 +52,10 @@ def _duplicate_ids(values: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(duplicates)
 
 
+def _timezone_aware(value) -> bool:
+    return value is not None and value.tzinfo is not None and value.utcoffset() is not None
+
+
 def inspect_evidentiary_state(state: EvidentiaryState) -> EvidentiaryStateReport:
     """Inspect components without collapsing them into one truth score or decision."""
     issues: list[str] = []
@@ -71,12 +75,21 @@ def inspect_evidentiary_state(state: EvidentiaryState) -> EvidentiaryStateReport
     if duplicate_constraints:
         issues.append("DUPLICATE_CONSTRAINT_IDS:" + ",".join(duplicate_constraints))
 
+    state_at = state.assurance_state.context.at
+    rule_effective_at = state.assurance_state.rule.effective_at
+    if rule_effective_at is not None:
+        if not _timezone_aware(rule_effective_at):
+            issues.append("RULE_EFFECTIVE_TIME_UNCOMPARABLE")
+        elif not _timezone_aware(state_at):
+            issues.append("STATE_TIME_UNCOMPARABLE_FOR_RULE")
+        elif rule_effective_at > state_at:
+            issues.append("RULE_NOT_YET_EFFECTIVE")
+
     source_results = tuple(validate_source_record(source) for source in state.sources)
     constraint_results = tuple(evaluate_constraint(item) for item in state.constraints)
     answer_result = validate_answer_space(state.answer_space) if state.answer_space is not None else None
     graph_cycle = detect_cycle(state.justification_graph) if state.justification_graph is not None else None
 
-    state_at = state.assurance_state.context.at
     primary_evidence_id = state.assurance_state.state_id
     matching = [record for record in state.availability if record.evidence_id == primary_evidence_id]
     availability_results = [
