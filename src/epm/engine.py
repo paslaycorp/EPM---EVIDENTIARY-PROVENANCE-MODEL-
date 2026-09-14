@@ -8,7 +8,7 @@ from .audit import AuditArtifact, build_audit_artifact
 from .envelope import EvidentiaryEnvelope, evaluate_evidentiary_envelope
 from .state import EvidentiaryState, EvidentiaryStateReport, inspect_evidentiary_state
 
-EPM_ENGINE_VERSION = "epm-engine/0.1.0"
+EPM_ENGINE_VERSION = "epm-engine/0.1.1"
 
 
 def assess_transition(envelope: EvidentiaryEnvelope) -> Mapping[str, object]:

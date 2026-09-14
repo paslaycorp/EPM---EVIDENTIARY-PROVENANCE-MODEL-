@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "epm-evidentiary-provenance-model"
-version = "0.1.0"
+version = "0.1.1"
 description = "Domain-neutral evidentiary provenance and epistemic integrity engine"
 readme = "RUNTIME.md"
 requires-python = ">=3.12"
@@ -36,7 +36,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-# Preserve the executed str+Enum compatibility behavior at the v0.1.0 boundary;
+# Preserve the executed str+Enum compatibility behavior at the v0.1.1 boundary;
 # StrEnum changes string rendering. E501 is formatting, not semantic correctness.
 ignore = ["E501", "UP042"]
 
