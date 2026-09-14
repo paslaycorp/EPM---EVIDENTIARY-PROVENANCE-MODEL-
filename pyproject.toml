@@ -37,6 +37,9 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+# Preserve the executed str+Enum compatibility behavior at the RC boundary;
+# StrEnum changes string rendering. E501 is formatting, not semantic correctness.
+ignore = ["E501", "UP042"]
 
 [tool.pytest.ini_options]
 addopts = "-q --tb=short"
