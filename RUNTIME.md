@@ -1,4 +1,4 @@
-# EPM Runtime — v0.1.0
+# EPM Runtime — v0.1.1
 
 ## Purpose
 
@@ -42,7 +42,19 @@ That connector establishes availability only inside the bounded GitHub Actions i
 
 FAP-Insurance separately implements a production request-receipt connector at its domain boundary. That integration attests only that an authenticated FAP request contained an exact SHA-256 evidence reference at the server receipt time. It does not backdate availability to the claimed capture/event time and does not prove external media existence before FAP observed the reference.
 
-Accordingly, EPM v0.1.0 supplies the generic temporal machinery and reference connector contract; production adapters remain responsible for supplying trustworthy, correctly bounded availability provenance.
+Accordingly, EPM v0.1.1 supplies the generic temporal machinery and reference connector contract; production adapters remain responsible for supplying trustworthy, correctly bounded availability provenance.
+
+### Rule-time admissibility
+
+An epistemic state may not rely on a governing rule that was not yet effective at that state's historical time.
+
+`inspect_state(...)` therefore reports:
+
+- `RULE_NOT_YET_EFFECTIVE` when `RuleBinding.effective_at` is later than `AssuranceContext.at`;
+- `RULE_EFFECTIVE_TIME_UNCOMPARABLE` when the supplied rule-effective time cannot be safely compared;
+- `STATE_TIME_UNCOMPARABLE_FOR_RULE` when a rule-effective time exists but the epistemic-state time is absent or uncomparable.
+
+The runtime preserves temporal uncertainty rather than guessing when the two times cannot be legitimately ordered.
 
 ## Operator audit artifact
 
@@ -70,14 +82,15 @@ The caller supplies the audit issue time explicitly. EPM does not inject an untr
 - A discriminator is not its outcome.
 - Circular/shared-origin support does not become independent corroboration.
 - Dependency invalidation propagates downstream.
+- A future-effective rule cannot justify an earlier epistemic state.
 - State inspection and a clean graph do not grant authorization.
 
 ## Release boundary
 
-`0.1.0` is the first frozen runtime release of the standalone EPM engine. It is a bounded implementation release, not a claim of universal domain completeness or universal provenance coverage.
+`0.1.1` is a bounded corrective release over the frozen `0.1.0` standalone runtime.
 
-The RC semantic surface is preserved. Graduation from `0.1.0rc1` to `0.1.0` changes the release/version boundary only; it does not introduce a new epistemic ladder, authorization rule, or temporal theory.
+The corrective semantic change is narrow: state inspection now enforces the already represented relationship between rule effective time and epistemic-state time. This closes an executable temporal-admissibility defect discovered by the isolated TVC falsification experiment. It does not merge TVC, change the epistemic ladder, alter answer-space semantics, or add a new authorization rule.
 
 Production C-21 remains connector-scoped. The FAP production integration closes the authenticated request-receipt availability boundary, while media-origin or pre-receipt existence still requires an independent provenance source if a caller needs to make that stronger claim.
 
-TVC and Variant Hunter are not part of EPM v0.1.0.
+TVC and Variant Hunter are not part of EPM v0.1.1.
