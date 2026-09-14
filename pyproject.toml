@@ -8,11 +8,10 @@ version = "0.1.0rc1"
 description = "Domain-neutral evidentiary provenance and epistemic integrity engine"
 readme = "RUNTIME.md"
 requires-python = ">=3.12"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "Rick Paslay"}]
 classifiers = [
   "Development Status :: 4 - Beta",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
