@@ -121,18 +121,24 @@ Dependents remain current without visible staleness/invalidation propagation.
 
 ## Required report format
 
-A high-quality defect report should include:
+The repository includes a structured GitHub issue form at:
+
+`.github/ISSUE_TEMPLATE/epm-red-team.yml`
+
+A high-quality defect report must include:
 
 - EPM commit SHA;
 - Python version;
+- attack class;
 - minimal executable reproduction;
 - exact input state and context;
-- expected decision and why;
-- observed decision;
-- invariant believed violated;
+- expected decision and invariant;
+- observed decision or structural result;
 - whether the defect is deterministic;
 - whether the defect requires malformed input, ambiguous integration semantics, or valid typed input;
 - proposed remediation if known.
+
+Reports that cannot identify the tested commit or provide a reproducible input should be treated as hypotheses until reproduced.
 
 ## Out of scope
 
