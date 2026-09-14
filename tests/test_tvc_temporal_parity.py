@@ -115,13 +115,12 @@ def _state(*, claim_time: datetime, rule_effective_at: datetime, evidence_availa
     )
 
 
-def test_future_rule_effective_time_is_candidate_positive_delta():
-    """A future-effective inference rule must not justify an earlier INFERRED state.
+def test_future_rule_effective_time_delta_is_retired_after_epm_remediation():
+    """A future-effective rule is now rejected by both the EPM control and TVC.
 
-    EPM and TVC both receive the same RuleBinding.effective_at fact.  Current
-    inspect_state validates evidence availability and constraint semantics but
-    does not compare rule effective time with the asserted epistemic state time.
-    TVC maps that same fact into the historically admissible entailment duty.
+    TVC originally exposed this defect under equal information. EPM absorbed the
+    invariant, so this case must remain as overlap evidence rather than continue
+    to count as incremental TVC assurance.
     """
     claim_time = datetime(2026, 9, 6, 20, 56, tzinfo=timezone.utc)
     rule_time = claim_time + timedelta(days=1)
@@ -133,7 +132,8 @@ def test_future_rule_effective_time_is_candidate_positive_delta():
 
     epm_report = inspect_state(epm_state)
     assert epm_state.assurance_state.rule.effective_at == rule_time
-    assert _epm_failure_count(epm_report) == 0
+    assert "RULE_NOT_YET_EFFECTIVE" in epm_report.structural_issues
+    assert _epm_failure_count(epm_report) > 0
 
     snapshot = tvc.EpistemicSnapshot(
         state_id=epm_state.state_id,
