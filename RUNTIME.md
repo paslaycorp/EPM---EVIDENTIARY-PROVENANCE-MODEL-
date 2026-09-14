@@ -1,4 +1,4 @@
-# EPM Runtime — v0.1.0rc1
+# EPM Runtime — v0.1.0
 
 ## Purpose
 
@@ -32,13 +32,17 @@ They translate domain vocabulary into the same generic EPM envelope and do not c
 
 ## Trusted evidence availability
 
-EPM never equates capture time, claimed event time, request receipt time, or processing time with evidence availability.
+EPM never equates capture time, claimed event time, request receipt time, or processing time with one another by implication.
 
-`EvidenceAvailability` must be created by a provenance-bearing integration path.
+`EvidenceAvailability` must be created by a provenance-bearing integration path whose claim is explicitly bounded.
 
-The first concrete connector in this RC is the GitHub Actions workflow-run receipt connector. It accepts only a bounded receipt whose repository/run identity matches an `https://api.github.com/repos/<owner>/<repo>/actions/runs/<id>` source, whose transport is declared verified, and whose timestamps are timezone-aware and internally ordered.
+The standalone runtime includes a GitHub Actions workflow-run receipt connector. It accepts only a bounded receipt whose repository/run identity matches an `https://api.github.com/repos/<owner>/<repo>/actions/runs/<id>` source, whose transport is declared verified, and whose timestamps are timezone-aware and internally ordered.
 
-That connector establishes availability only inside the bounded GitHub Actions integration. It does **not** make FAP production C-21 conformant and does not assert that GitHub is a universal time authority.
+That connector establishes availability only inside the bounded GitHub Actions integration. It does **not** make GitHub a universal time authority.
+
+FAP-Insurance separately implements a production request-receipt connector at its domain boundary. That integration attests only that an authenticated FAP request contained an exact SHA-256 evidence reference at the server receipt time. It does not backdate availability to the claimed capture/event time and does not prove external media existence before FAP observed the reference.
+
+Accordingly, EPM v0.1.0 supplies the generic temporal machinery and reference connector contract; production adapters remain responsible for supplying trustworthy, correctly bounded availability provenance.
 
 ## Operator audit artifact
 
@@ -70,8 +74,10 @@ The caller supplies the audit issue time explicitly. EPM does not inject an untr
 
 ## Release boundary
 
-`0.1.0rc1` is a release candidate, not a claim of universal domain completeness.
+`0.1.0` is the first frozen runtime release of the standalone EPM engine. It is a bounded implementation release, not a claim of universal domain completeness or universal provenance coverage.
 
-Production C-21 remains domain-integration dependent: the generic temporal machinery is implemented, but each production adapter must supply trustworthy evidence-availability provenance rather than fabricate it.
+The RC semantic surface is preserved. Graduation from `0.1.0rc1` to `0.1.0` changes the release/version boundary only; it does not introduce a new epistemic ladder, authorization rule, or temporal theory.
 
-TVC and Variant Hunter are not part of this runtime release candidate.
+Production C-21 remains connector-scoped. The FAP production integration closes the authenticated request-receipt availability boundary, while media-origin or pre-receipt existence still requires an independent provenance source if a caller needs to make that stronger claim.
+
+TVC and Variant Hunter are not part of EPM v0.1.0.
