@@ -1,113 +1,156 @@
-# EPM vNext Conformance Matrix v0.1 — Executable Engine Gate
+# EPM vNext Conformance Matrix v0.1 — Release Candidate Record
 
-**Status:** VNEXT ENGINE GATE EXECUTED — REVIEWABLE, NOT MERGED OR RELEASED  
+**Status:** RC1 CERTIFIED — STANDALONE PACKAGE GREEN, FAP EXTRACTION GREEN, STAGING LIVE  
 **Date:** 2026-09-14  
-**Scope:** Domain-neutral EPM vNext engine as implemented on the FAP-Insurance vNext branch  
 **Historical baseline:** `04_TESTS/EPM-CONFORMANCE-MATRIX-v0.2.md` remains frozen and unchanged  
-**Explicit exclusions:** production C-21 integration, TVC, Variant Hunter, merge/release/deployment claims
+**Standalone package version:** `0.1.0rc1` / `epm-engine/0.1.0-rc1`  
+**Explicit exclusions:** FAP production C-21 integration, TVC, Variant Hunter, production promotion
 
 ## Governing evidence rule
 
-This matrix is a new vNext evidence record. It does **not** rewrite, supersede, backdate, or reinterpret the frozen EPM v0.2 closure matrix.
+This is a post-v0.2 vNext release-candidate evidence record. It does not rewrite, supersede, backdate, or reinterpret the frozen EPM v0.2 closure matrix.
 
-A row is marked **PASS** only where executable behavior exists in the vNext runtime boundary and was exercised in the final branch-wide verification gate. Specification text or repository inspection alone is not treated as runtime conformance evidence.
+A capability is marked **PASS** only where executable behavior exists and fresh verification has exercised the claimed boundary. Specification text and repository inspection are not substitutes for runtime evidence.
 
-The final executable FAP-Insurance vNext baseline is:
+## Release-candidate evidence baseline
 
-- branch: `vnext/generic-evidentiary-envelope-v0.1`
-- commit: `bd1421c485085adbaf8428c0ca1bfb36f5915313`
-- Production Verification #83 — run `34797796926` — **SUCCESS**
-- final Production Verification pytest — **151 passed, 1 warning**
-- FAP-Insurance CI/CD #203 — run `34797797078` — **SUCCESS**
-- engine lint — **PASS**
-- vNext test correctness lint — **PASS**
-- engine compile — **PASS**
-- public `epm` import — **PASS**
-- legacy API/assurance regression suites — **PASS**
-- dedicated EPM vNext semantic gate — **PASS**
-- full pytest suite — **PASS**
+### Standalone EPM package
+
+- repository: `paslaycorp/EPM---EVIDENTIARY-PROVENANCE-MODEL-`
+- package RC branch: `rc/epm-engine-v0.1`
+- tested/frozen package commit: `dc08ad7454c31a4a8fb804a37597569d03d3ea5e`
+- EPM Runtime CI #6 — run `34798881500` — **SUCCESS**
+- Python 3.12 certification job — **PASS**
+- Python 3.13 certification job — **PASS**
+- runtime lint — **PASS**
+- test correctness lint — **PASS**
+- compile/public import — **PASS**
+- adversarial certification suite — **PASS**
+- wheel/sdist build — **PASS**
+
+The generic runtime is now packaged under `src/epm` and no longer depends on FAP-Insurance request models.
+
+### FAP-Insurance external-package integration
+
+- repository: `paslaycorp/FAP-Insurance`
+- RC branch: `rc/epm-engine-v0.1`
+- tested/frozen FAP commit: `7df323a9d910403c50923e9e736c8228717fe7c9`
+- standalone EPM dependency is pinned to exact commit `dc08ad7454c31a4a8fb804a37597569d03d3ea5e`
+- Production Verification #85 — run `34799199150` — **SUCCESS**
+- FAP-Insurance CI/CD #205 — run `34799199254` — **SUCCESS**
+- CI explicitly verifies `import epm` resolves from installed site-packages — **PASS**
+- legacy API / assurance / audit / composition / boundary / red-team / smoke suites — **PASS**
+- EPM semantic gate through external package — **PASS**
+- full regression suite — **PASS**
+
+FAP retains only domain translation and compatibility shims for historical import names. Generic EPM semantic ownership resides in the standalone package.
+
+### Staging deployment
+
+- Render service: `fap-epm-rc1-staging`
+- service id: `srv-dajln7e7bikc73cib9s0`
+- branch: `rc/epm-engine-v0.1`
+- deployed FAP commit: `7df323a9d910403c50923e9e736c8228717fe7c9`
+- auto-deploy: disabled
+- region: Virginia
+- runtime pin: Python `3.12.14`
+- package installed during build: `epm-evidentiary-provenance-model==0.1.0rc1`
+- successful deploy: `dep-dajlnh7qj5pc73e4i8qg` — **LIVE**
+- application startup completed under Uvicorn — **PASS**
+
+The first staging build, `dep-dajln867bikc73cibbp0`, failed because Render selected Python 3.14.3 and `pydantic-core==2.33.0` fell back to a Rust source build in a read-only Cargo environment. This deployment defect was preserved in the record. The service was then pinned to the already-certified Python 3.12.14 runtime and redeployed without application-code changes.
+
+No production API secret was copied into the staging service.
 
 ## Evidence-state vocabulary
 
-- **PASS** — fresh executable evidence demonstrates the invariant in the claimed vNext engine boundary.
-- **ENGINE CAPABILITY PRESENT / PRODUCTION INTEGRATION EXCLUDED** — the generic engine abstraction is implemented and executed, but a trustworthy production integration required for the stronger deployment claim does not exist.
+- **PASS** — fresh executable evidence demonstrates the invariant in the claimed RC boundary.
+- **ENGINE + BOUNDED CONNECTOR PRESENT / FAP PRODUCTION INTEGRATION EXCLUDED** — the generic engine and a real bounded availability integration exist, but the production FAP domain still lacks trustworthy claim/media availability provenance.
 - **FAIL** — executable evidence demonstrates a violation.
 - **UNVERIFIED** — implementation exists but fresh executable evidence is absent.
 
 ## Conformance matrix
 
-| ID | Invariant / failure mode | vNext executable evidence / boundary determination | State |
+| ID | Invariant / failure mode | RC executable evidence / boundary determination | State |
 |---|---|---|---|
-| C-01 | Epistemic status conservation | Generic envelope and compatibility probes preserve weaker source states; UNKNOWN remains UNKNOWN/DEFER and cannot be promoted by requested target state. | **PASS** |
-| C-02 | Provenance continuity | Frozen provenance/audit behavior remains green; vNext source, constraint, availability, graph-node, and support-edge objects add explicit provenance-bearing structure without replacing the prior audit boundary. | **PASS** |
-| C-03 | Adversarial narrowing | First-class constraints require identified premises, non-empty provenance, an established entailment basis, source reference, and any required governance review before exclusions become effective. | **PASS** |
-| C-04 | Constraint ≠ resolution | Constraint recomputation may narrow to a singleton while the answer-space remains `CONSTRAINED`; only a sufficient discriminator plus a valid external observation can produce `RESOLVED`. | **PASS** |
-| C-05 | Constraint monotonicity | Answer-space is recomputed from the declared candidate universe and currently valid constraints; immutable revision/history records narrowing, widening, and reopening instead of silently overwriting history. | **PASS** |
-| C-06 | Constraint entailment | Constraint exclusions are ineffective unless entailment status is `ESTABLISHED` and an explicit entailment basis is present. | **PASS** |
-| C-07 | Constraint failure preservation | Invalidated or contradicted premises invalidate/contradict the dependent constraint, remove effective exclusions, and permit the answer-space to reopen on recomputation. | **PASS** |
-| C-08 | Dependency propagation | Existing FAP dependency propagation remains green; vNext justification-graph invalidation propagates staleness to every reachable dependent node. | **PASS** |
-| C-09 | Derivation ≠ closure | `record_derivation()` records `DERIVED` standing without changing resolution state; `CLOSED` requires legitimate resolution, explicit exhaustive-domain basis, external resolution references, and no material unresolved conditions. | **PASS** |
-| C-10 | Discriminator ≠ observation | Discriminator definition and sufficiency are distinct from outcome observation; Stage 2 resolution requires a separately typed, externally originated `OBSERVATION`. | **PASS** |
-| C-11 | Circular resolution | Direct self-support and cycle-creating edges are rejected; cycle detection prevents circular support from counting as established or independent corroboration. | **PASS** |
-| C-12 | Computational discovery ≠ observation | `COMPUTATIONAL_DISCOVERY` and `DERIVATION` are explicit source types; internal outputs cannot be relabeled as observations without new external observation, and new observation does not rewrite old provenance. | **PASS** |
-| C-13 | Answer-space granularity | Answer-space construction requires explicit granularity and a justification for that granularity; admissible candidates must remain inside the declared universe. | **PASS** |
-| C-14 | Authorization separation | Existing Governor/transition behavior remains green through generic-envelope routing; evidence/assurance evaluation does not itself silently grant unrelated authorization. | **PASS** |
-| C-15 | Context preservation | Purpose, scope, jurisdiction, time, rule, and authority context remain typed inputs to materiality/preservation evaluation. | **PASS** |
-| C-16 | Rule/version preservation | Existing rule/version mismatch enforcement remains green after generic routing. | **PASS** |
-| C-17 | Jurisdiction preservation | Existing jurisdiction mismatch enforcement remains green after generic routing. | **PASS** |
-| C-18 | Temporal preservation | Existing transition-time preservation behavior remains green; vNext additionally models trusted evidence availability without conflating it with event/capture/processing time. | **PASS** |
-| C-19 | UNKNOWN preservation | Missing or untrusted availability remains `UNKNOWN`; unknown assurance remains UNKNOWN/DEFER rather than being coerced into false availability, false unavailability, or validity. | **PASS** |
-| C-20 | Epistemic inflation through composition | Existing composition boundary remains green; vNext aggregate state intentionally returns component assessments instead of a master truth/confidence score that could overwrite weaker states. | **PASS** |
-| C-21 | Temporal non-retroactivity | Typed `EvidenceAvailability` plus validated attestation/provenance and AVAILABLE/UNAVAILABLE/UNKNOWN evaluation is implemented and adversarially tested. However, the production FAP request path still does not receive trustworthy end-to-end evidence-availability provenance. `timestamp_claimed`, capture time, and processing time are not substitutes. | **ENGINE CAPABILITY PRESENT / PRODUCTION INTEGRATION EXCLUDED** |
-| C-22 | Provenance tamper visibility / authority | Frozen audit/provenance tamper behavior remains green; vNext provenance-bearing semantic records do not weaken the authority boundary. | **PASS** |
-| C-23 | Materiality boundary | Generic envelope preserves the executed material/non-material transition distinction and matching-preservation requirement. | **PASS** |
-| C-24 | Misapplication without tampering | Material purpose/scope/context misuse remains detectable even where underlying evidence has not been tampered with. | **PASS** |
+| C-01 | Epistemic status conservation | Generic transition evaluation conserves weaker source states; UNKNOWN remains UNKNOWN/DEFER and cannot be promoted by target request. | **PASS** |
+| C-02 | Provenance continuity | Provenance-bearing sources, constraints, availability attestations, graph nodes/edges, audit artifacts, and frozen legacy audit behavior remain explicit. | **PASS** |
+| C-03 | Adversarial narrowing | Constraints require identified premises, provenance, entailment basis, source reference, and required governance review before exclusions become effective. | **PASS** |
+| C-04 | Constraint ≠ resolution | Constraint recomputation may narrow to a singleton while state remains `CONSTRAINED`; Stage 2 external observation is required for `RESOLVED`. | **PASS** |
+| C-05 | Constraint monotonicity | Answer-space recomputation starts from the declared universe and valid current constraints; invalidation can reopen alternatives with history preserved. | **PASS** |
+| C-06 | Constraint entailment | Candidate exclusions are ineffective without `ESTABLISHED` entailment plus explicit basis. | **PASS** |
+| C-07 | Constraint failure preservation | Unknown, invalidated, contradicted, or rejected constraints remain typed and cannot keep stale narrowing active. | **PASS** |
+| C-08 | Dependency propagation | Justification invalidation propagates staleness to every reachable dependent; legacy FAP dependency behavior remains green. | **PASS** |
+| C-09 | Derivation ≠ closure | Derivation records `DERIVED` standing without resolution/closure; closure requires legitimate resolution, exhaustive-domain basis, external resolution refs, and no material unresolved conditions. | **PASS** |
+| C-10 | Discriminator ≠ observation | Discriminator definition/sufficiency is separate from typed external observation. | **PASS** |
+| C-11 | Circular resolution | Self-support/cycle-creating edges are rejected; imported cycles remain visible and cannot become independent corroboration. | **PASS** |
+| C-12 | Computational discovery ≠ observation | Computational discovery/derivation are explicit source types and cannot be relabeled as observations without new external evidence. | **PASS** |
+| C-13 | Answer-space granularity | Answer-space requires explicit granularity and basis; admissible candidates remain within declared universe. | **PASS** |
+| C-14 | Authorization separation | Transition assessment and state inspection do not silently grant unrelated authorization; Governor behavior remains explicit. | **PASS** |
+| C-15 | Context preservation | Purpose, scope, jurisdiction, time, rule, and authority remain typed transition inputs. | **PASS** |
+| C-16 | Rule/version preservation | Unpreserved rule/version drift remains detectable and fail-closed where material. | **PASS** |
+| C-17 | Jurisdiction preservation | Jurisdiction crossing without preservation remains detectable and fail-closed where material. | **PASS** |
+| C-18 | Temporal preservation | Transition-time preservation remains enforced; typed evidence availability is separately modeled. | **PASS** |
+| C-19 | UNKNOWN preservation | Missing/untrusted availability remains UNKNOWN; unknown assurance remains UNKNOWN/DEFER. | **PASS** |
+| C-20 | Epistemic inflation through composition | Aggregate state returns component assessments instead of a master truth/confidence score; composition cannot overwrite weaker states. | **PASS** |
+| C-21 | Temporal non-retroactivity | `EvidenceAvailability` is implemented. A real GitHub Actions REST connector now creates a validated, provenance-bearing availability record from a matching workflow-run `created_at` obtained over verified HTTPS. The connector rejects wrong host, identity mismatch, unverified transport, naive times, and impossible temporal ordering. This establishes a bounded real connector capability only. FAP production still does not ingest trustworthy claim/media evidence-availability provenance. | **ENGINE + BOUNDED CONNECTOR PRESENT / FAP PRODUCTION INTEGRATION EXCLUDED** |
+| C-22 | Provenance tamper visibility / authority | Provenance-bearing semantic records and frozen tamper/audit behavior preserve authority boundaries. | **PASS** |
+| C-23 | Materiality boundary | Generic envelope preserves material/non-material distinction and preservation requirement. | **PASS** |
+| C-24 | Misapplication without tampering | Purpose/scope/context misuse remains detectable even where underlying evidence itself is intact. | **PASS** |
 
-## Cross-domain execution
+## Real bounded availability connector
 
-The same vNext invariants were exercised without insurance request fields across seven domain contexts:
+The first concrete trusted-availability integration in RC1 is deliberately narrow: a `GitHubActionsRunReceipt` accepted only when repository/run identity matches an `https://api.github.com/repos/<owner>/<repo>/actions/runs/<id>` source, transport is verified, timestamps are timezone-aware, and observation time is not earlier than server-created time.
 
-- insurance
-- legal evidence
-- scientific evidence
-- machine-generated analysis
-- financial decision support
-- compliance
-- intelligence analysis
+The certification suite uses the real FAP Production Verification #83 workflow-run record as one bounded receipt. This proves that EPM can ingest a real external availability provenance source without manufacturing time.
 
-The cross-domain suite covers fail-closed transition behavior, UNKNOWN conservation, singleton/non-resolution, computational-source typing, temporal UNKNOWN preservation, and circular-support rejection.
+It does **not** establish:
 
-## C-21 boundary
+- that GitHub is a universal temporal authority;
+- that workflow creation time is media/claim evidence availability;
+- that FAP production C-21 is solved;
+- that capture time, claimed event time, request receipt time, or processing time can substitute for trusted availability provenance.
 
-C-21 requires a deliberate split between **engine capability** and **production integration**.
+## Reference adapters
 
-The engine can now represent and evaluate trusted availability provenance. That is a real implemented capability. It does not justify a production conformance claim until the production integration supplies a trustworthy provenance-bearing record establishing when evidence actually became available to the relevant epistemic state.
+RC1 includes explicit reference adapters for:
 
-Therefore this matrix does not infer availability from:
+- insurance evidence use;
+- legal/evidentiary use;
+- scientific evidence reuse.
 
-- `timestamp_claimed`;
-- media capture time;
-- request receipt time;
-- `processed_at`;
-- a bare timestamp without validated provenance.
+Each adapter translates domain vocabulary into the same generic EPM envelope and refuses missing material context rather than silently inventing equivalence.
 
-## Claimed vNext boundary
+## Operator audit artifact
 
-The executable claim established by this gate is:
+RC1 emits deterministic operator-facing audit artifacts containing:
 
-> A domain-neutral EPM engine can preserve transition assurance, typed epistemic source origin, trusted temporal-availability uncertainty, premise/entailment-aware constraints, answer-space resolution boundaries, and justification/dependency structure across multiple domain contexts without silently converting derivation into observation, narrowing into resolution, provenance into authority, or uncertainty into certainty.
+- structural issues;
+- source typing results;
+- temporal availability and provenance;
+- constraint status;
+- answer-space/resolution state;
+- dependency-cycle state;
+- limitations;
+- unresolved conditions;
+- optional transition assurance / decision / failure context.
+
+The audit artifact intentionally contains no universal confidence/truth score and requires an explicit timezone-aware issue time.
+
+## RC1 claimed boundary
+
+> EPM v0.1.0rc1 is an independently installable, domain-neutral evidentiary integrity engine whose transition assurance, source typing, temporal-availability uncertainty, constraint semantics, answer-space resolution boundaries, dependency structure, and audit output have survived standalone certification on Python 3.12/3.13, external-package integration back into FAP-Insurance, full FAP regression, and an isolated staging deployment.
 
 ## Non-claims
 
 This record does not claim:
 
-- that EPM vNext is merged to `main`;
-- that EPM vNext is released or deployed to production;
-- production C-21 conformance without a trustworthy availability integration;
-- that domain adapters automatically possess source/constraint/answer-space/graph data they do not actually emit;
-- that graph acyclicity authorizes an action;
-- that a confidence score can override typed uncertainty;
-- TVC implementation or conformance;
-- Variant Hunter implementation or conformance.
+- production FAP C-21 conformance;
+- production promotion of the staging RC;
+- universal domain completeness;
+- that a graph being acyclic authorizes an action;
+- that confidence can override typed uncertainty;
+- TVC implementation/conformance;
+- Variant Hunter implementation/conformance.
 
-The frozen EPM v0.2 closure record remains intact as the historical baseline.
+The frozen EPM v0.2 historical closure record remains intact.
