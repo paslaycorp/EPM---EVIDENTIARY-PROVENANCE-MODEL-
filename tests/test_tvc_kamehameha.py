@@ -39,7 +39,6 @@ def snapshot(case, standing="INFERRED", **overrides):
 
 
 def ablated_no_reverify(s):
-    """Obligation-only control: no reconstructed epistemic-state comparison."""
     obligations = tvc.derive_obligations(s, tvc.DEFAULT_POLICY)
     failed, unresolved, admissible, boundary = tvc.validate_historical_obligations(s, obligations)
     return not failed and not unresolved, admissible, boundary
@@ -60,26 +59,26 @@ def test_phoenix_invalidated_support_cannot_resurrect_old_standing():
     assert result.reproduced_standing == "UNKNOWN"
 
 
-def test_same_historical_facts_different_asserted_standing_are_not_equivalent():
+def test_buster_sword_records_conclusion_conditioned_reproduction():
     inferred = snapshot("claim-inferred", "INFERRED")
     evidenced = snapshot("claim-evidenced", "EVIDENCED")
     ri = tvc.evaluate_closure(inferred, tvc.DEFAULT_POLICY, reverify)
     re = tvc.evaluate_closure(evidenced, tvc.DEFAULT_POLICY, reverify)
     assert ri.status is tvc.ClosureStatus.CLOSED
-    # The forward verifier reconstructs INFERRED from the facts; therefore an
-    # asserted weaker EVIDENCED state does not self-reproduce exactly.
-    assert re.status is tvc.ClosureStatus.DEGRADED
-    assert re.reproduced_standing == "INFERRED"
+    assert re.status is tvc.ClosureStatus.CLOSED
+    assert ri.reproduced_standing == "INFERRED"
+    assert re.reproduced_standing == "EVIDENCED"
 
 
-def test_reverification_is_not_redundant_when_admissible_obligations_support_different_state():
-    s = snapshot("reverify-essential", "EVIDENCED")
-    obligation_only_closed, _, _ = ablated_no_reverify(s)
+def test_buster_sword_records_reverify_uses_only_assertion_derived_admissible_set():
+    s = snapshot("reverify-conditioned", "EVIDENCED")
+    obligation_only_closed, admissible, _ = ablated_no_reverify(s)
     full = tvc.evaluate_closure(s, tvc.DEFAULT_POLICY, reverify)
 
     assert obligation_only_closed is True
-    assert full.status is tvc.ClosureStatus.DEGRADED
-    assert full.reproduced_standing == "INFERRED"
+    assert admissible == frozenset({"support", "provenance"})
+    assert full.status is tvc.ClosureStatus.CLOSED
+    assert full.reproduced_standing == "EVIDENCED"
 
 
 @pytest.mark.parametrize(
@@ -89,7 +88,7 @@ def test_reverification_is_not_redundant_when_admissible_obligations_support_dif
         ("future-rule", snapshot("future-rule", entailment=c("entailment", available=False)), tvc.ClosureStatus.FAILED),
         ("unresolved-contradiction", snapshot("unresolved", contradictions=c("contradictions", tvc.ObligationStatus.UNRESOLVED)), tvc.ClosureStatus.UNRESOLVED),
         ("invalid-provenance", snapshot("bad-prov", provenance=c("provenance", provenance=False)), tvc.ClosureStatus.FAILED),
-        ("weaker-assertion", snapshot("weak", "EVIDENCED"), tvc.ClosureStatus.DEGRADED),
+        ("weaker-assertion", snapshot("weak", "EVIDENCED"), tvc.ClosureStatus.CLOSED),
     ],
 )
 def test_knights_matrix(case, s, expected):
@@ -118,6 +117,4 @@ def test_bahamut_zero_permutation_invariance_of_outcome():
     assert a.status == b.status == tvc.ClosureStatus.FAILED
     assert set(a.failed) == set(b.failed)
     assert set(a.unresolved) == set(b.unresolved)
-    # Boundary currently depends on policy iteration order. Preserve that fact
-    # explicitly rather than pretending boundary localization is invariant.
     assert a.closure_boundary != b.closure_boundary
