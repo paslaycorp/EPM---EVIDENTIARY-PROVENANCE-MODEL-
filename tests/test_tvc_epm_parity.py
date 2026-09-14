@@ -21,6 +21,7 @@ from epm.constraints import (
     EntailmentStatus,
     PremiseState,
 )
+from epm.resolution import AnswerSpaceSnapshot, EpistemicStanding, ResolutionState
 from epm.temporal import TemporalAvailability
 
 
@@ -61,28 +62,28 @@ def _epm_failure_count(report) -> int:
     )
     if report.answer_space_result is not None and not report.answer_space_result.valid:
         count += 1
-    if report.graph_cycle_result is not None and report.graph_cycle_result.has_cycle:
+    if report.graph_cycle_result is not None and report.graph_cycle_result.cyclic:
         count += 1
     return count
 
 
 def test_tvc_adds_conclusion_conditioned_check_without_privileged_information():
-    """Use one canonical fact set for both EPM and TVC.
+    """Run EPM and TVC from the same historical facts and asserted standing.
 
-    The historical record establishes support, provenance and entailment but has
-    no contradiction-disposition record.  The absence is shared information;
-    TVC is not given a hidden contradiction fact.  EPM inspects its existing
-    semantic objects, while TVC derives the missing contradiction obligation
-    from the asserted INFERRED standing.
+    The historical record establishes support, provenance and entailment, and
+    both systems receive the asserted INFERRED standing.  There is no
+    contradiction-disposition record.  That absence is shared information;
+    TVC receives no hidden contradiction fact.  Its only extra operation is to
+    derive the obligations required by INFERRED and demand historical closure.
     """
     claim_time = datetime(2026, 9, 6, 20, 56, tzinfo=timezone.utc)
 
-    # Canonical historical facts visible to both controls.
     facts = {
         "support": True,
         "provenance": True,
         "entailment": True,
-        "contradictions": None,  # no disposition record exists at the boundary
+        "contradictions": None,
+        "asserted_standing": "INFERRED",
     }
 
     rule = RuleBinding(
@@ -121,33 +122,50 @@ def test_tvc_adds_conclusion_conditioned_check_without_privileged_information():
         entailment_status=EntailmentStatus.ESTABLISHED,
         source_ref="canonical-fixture",
     )
+    answer_space = AnswerSpaceSnapshot(
+        question_id="question-X",
+        candidate_universe=("X", "not-X"),
+        admissible_candidates=("X", "not-X"),
+        resolution_state=ResolutionState.UNRESOLVED,
+        epistemic_standing=EpistemicStanding.INFERRED,
+        granularity="binary proposition",
+        granularity_basis="fixture evaluates X versus not-X",
+    )
     epm_state = EvidentiaryState(
         state_id="state-X",
         proposition="X",
         assurance_state=assurance,
         availability=(availability,),
         constraints=(inferential_constraint,),
+        answer_space=answer_space,
     )
 
     epm_report = inspect_state(epm_state)
     epm_failures = _epm_failure_count(epm_report)
 
+    # TVC is adapted from the same canonical facts.  Missing information stays
+    # missing; the adapter must not manufacture a contradiction disposition.
     tvc_conditions = {
         name: _condition(name)
         for name in ("support", "provenance", "entailment")
         if facts[name] is True
     }
-    # No condition is fabricated for facts["contradictions"] == None.
     snapshot = tvc.EpistemicSnapshot(
         state_id="state-X",
         proposition="X",
-        asserted_standing="INFERRED",
+        asserted_standing=facts["asserted_standing"],
         claimed_at=claim_time.isoformat(),
         conditions=tvc_conditions,
     )
     tvc_result = tvc.evaluate_closure(snapshot, tvc.DEFAULT_POLICY, _reverify)
     tvc_failures = int(tvc_result.status is not tvc.ClosureStatus.CLOSED)
 
+    # EPM sees the INFERRED standing and the same absence, but its current
+    # inspection surface does not derive a contradiction-disposition obligation
+    # from that standing.  TVC does, so the missing obligation remains explicit.
+    assert epm_report.answer_space_result is not None
+    assert epm_report.answer_space_result.valid
+    assert epm_state.answer_space.epistemic_standing is EpistemicStanding.INFERRED
     assert epm_failures == 0
     assert tvc_result.status is tvc.ClosureStatus.UNRESOLVED
     assert tvc_result.closure_boundary == "contradictions"
