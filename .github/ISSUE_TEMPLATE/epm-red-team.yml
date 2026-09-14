@@ -1,0 +1,120 @@
+name: EPM red-team finding
+description: Report a reproducible invariant violation or materially ambiguous integration boundary in a released EPM runtime.
+title: "[RED TEAM] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for executable or integration-level findings against a released EPM boundary. Do not submit stylistic preferences as semantic defects.
+
+  - type: input
+    id: commit
+    attributes:
+      label: EPM commit SHA
+      description: Exact commit tested. For v0.1.1, the frozen release SHA is 87903f2d53531bf28d97f1271af62b6d9b3e64be.
+      placeholder: 40-character commit SHA
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: e.g. 3.12.14
+    validations:
+      required: true
+
+  - type: dropdown
+    id: attack_class
+    attributes:
+      label: Attack class
+      options:
+        - Purpose or scope laundering
+        - Authority laundering
+        - Rule or version laundering
+        - Future-rule leakage
+        - Jurisdiction laundering
+        - Temporal evidence leakage
+        - Unknown inflation
+        - Computation-to-observation laundering
+        - Constraint-to-resolution laundering
+        - Circular or correlated support
+        - Dependency resurrection
+        - Other bounded invariant
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal executable reproduction
+      description: Include the smallest runnable program, test, or request sequence that reproduces the behavior.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: input_state
+    attributes:
+      label: Exact input state and context
+      description: Include relevant evidence identifiers, purpose, scope, authority, jurisdiction, rule/version, timestamps, provenance, and consequence.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result and invariant
+      description: State the expected decision/state and the invariant that requires it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result
+      description: Include the exact decision, failure code, structural issue, or audit output observed.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deterministic
+    attributes:
+      label: Deterministic reproduction
+      options:
+        - Yes
+        - No
+        - Unknown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: input_validity
+    attributes:
+      label: Input class
+      options:
+        - Valid typed input
+        - Ambiguous integration semantics
+        - Malformed input accepted by runtime
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: remediation
+    attributes:
+      label: Proposed remediation
+      description: Optional. Do not weaken fail-closed behavior merely to eliminate a rejection.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I tested the exact commit stated above and can reproduce the behavior described.
+          required: true
+        - label: This report concerns the released EPM boundary, not TVC or Variant Hunter.
+          required: true
