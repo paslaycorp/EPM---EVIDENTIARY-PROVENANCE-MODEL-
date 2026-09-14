@@ -102,6 +102,10 @@ def minimal_failure_cut_sets(
     return tuple(sorted(minimal, key=lambda x: (len(x), tuple(sorted(x)))))
 
 
+def _iso(value: datetime | None) -> str:
+    return "NONE" if value is None else value.isoformat()
+
+
 def evaluate_temporal_transition_fidelity(
     transition: HistoricalTransition,
     reconstruct: Reconstruct,
@@ -145,6 +149,23 @@ def evaluate_temporal_transition_fidelity(
         else:
             status = FidelityStatus.CLOSED
 
+    temporal_history = []
+    for dependency_id in sorted(transition.dependencies):
+        dep = transition.dependencies[dependency_id]
+        temporal_history.append(
+            "|".join(
+                [
+                    dependency_id,
+                    dep.evidence_available_at.isoformat(),
+                    dep.justification_available_at.isoformat(),
+                    _iso(dep.bound_at),
+                    _iso(dep.used_at),
+                    str(dep.provenance_valid),
+                    str(dep.active),
+                ]
+            )
+        )
+
     canonical = "\n".join(
         [
             transition.transition_id,
@@ -157,6 +178,7 @@ def evaluate_temporal_transition_fidelity(
             ",".join(sorted(newly_usable)),
             ",".join(sorted(path)),
             ";".join(",".join(sorted(cut)) for cut in cut_sets),
+            "history=" + ";".join(temporal_history),
         ]
     )
     fingerprint = sha256(canonical.encode("utf-8")).hexdigest()
