@@ -1,11 +1,13 @@
-from pathlib import Path
 import importlib.util
+import sys
+from pathlib import Path
 
 
 MODULE = Path(__file__).resolve().parents[1] / "experiments" / "tvc" / "tvc.py"
 spec = importlib.util.spec_from_file_location("tvc_experiment", MODULE)
-tvc = importlib.util.module_from_spec(spec)
 assert spec and spec.loader
+tvc = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = tvc
 spec.loader.exec_module(tvc)
 
 
@@ -93,7 +95,7 @@ def test_tvc_preserves_unresolved_status_obligation_instead_of_promoting():
 
 
 def test_tvc_exposes_incremental_assurance_delta_after_structural_checks_pass():
-    # Control condition: assume ordinary structural/provenance/time checks report no defect.
+    # Control condition: ordinary structural/provenance/time checks report no defect.
     epm_visible_failures = 0
 
     snapshot = tvc.EpistemicSnapshot(
