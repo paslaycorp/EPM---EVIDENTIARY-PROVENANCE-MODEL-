@@ -1,7 +1,7 @@
 """Dynamic obligation derivation experiment for TVC.
 
 Unlike DEFAULT_POLICY, this module derives material obligations from the actual
-runtime justification graph.  It remains experimental and outside src/epm.
+runtime justification graph. It remains experimental and outside src/epm.
 """
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from datetime import datetime
 from epm.justification import JustificationGraph, JustificationNodeType
 from epm.temporal import (
     EvidenceAvailability,
+    TemporalAvailability,
     TemporalAvailabilityResult,
     assess_temporal_availability,
 )
@@ -33,7 +34,7 @@ def derive_graph_obligations(
 ) -> tuple[DerivedGraphObligation, ...]:
     """Derive obligations by traversing the target's recorded justification structure.
 
-    The obligation set is not selected from a fixed standing table.  Every
+    The obligation set is not selected from a fixed standing table. Every
     material incoming dependency reachable from target_id becomes a concrete
     obligation identified by relation and endpoints.
     """
@@ -86,7 +87,7 @@ def assess_graph_obligation_availability(
 ) -> tuple[TemporalAvailabilityResult, ...]:
     """Demand historical availability for every dependency derived from the graph.
 
-    This deliberately reuses EPM's trusted availability primitive.  The
+    This deliberately reuses EPM's trusted availability primitive. The
     experimental delta is obligation generation: callers do not pre-author a
     fixed list of dependency identifiers for validation.
     """
@@ -105,10 +106,13 @@ def assess_graph_obligation_availability(
                 TemporalAvailabilityResult(
                     evidence_id=obligation.obligation_id,
                     state_at=state_at,
-                    status=__import__("epm.temporal", fromlist=["TemporalAvailability"]).TemporalAvailability.UNKNOWN,
+                    status=TemporalAvailability.UNKNOWN,
                     trusted=False,
                     reason_code="DEPENDENCY_AVAILABILITY_AMBIGUOUS",
-                    reason="Multiple availability records claim the same graph-derived dependency identity.",
+                    reason=(
+                        "Multiple availability records claim the same graph-derived "
+                        "dependency identity."
+                    ),
                 )
             )
             continue
