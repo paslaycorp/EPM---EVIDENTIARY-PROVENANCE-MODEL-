@@ -49,15 +49,10 @@ class Case:
 
 
 CASES = (
-    # Positive-delta case: EPM currently has no status-derived contradiction-disposition check.
     Case("missing-contradiction-disposition", True, True, "ESTABLISHED", "UNRESOLVED", False, tvc.ClosureStatus.UNRESOLVED, 1),
-    # Clean control: TVC must not manufacture a failure when every obligation is satisfied.
     Case("clean-closure", True, True, "ESTABLISHED", "SATISFIED", False, tvc.ClosureStatus.CLOSED, 0),
-    # Existing EPM semantics already catch explicit contradiction; TVC must not claim unique value.
     Case("explicit-contradiction", True, True, "CONTRADICTED", "FAILED", True, tvc.ClosureStatus.FAILED, 0),
-    # Existing EPM semantics already catch missing entailment; TVC may also fail/unresolve but delta must be zero.
     Case("missing-entailment", True, True, "UNKNOWN", "SATISFIED", True, tvc.ClosureStatus.FAILED, 0),
-    # False-positive guard: evidence-level standing should not inherit INFERRED-only contradiction obligations.
     Case("evidenced-no-inference-duty", True, True, "ESTABLISHED", "UNRESOLVED", False, tvc.ClosureStatus.CLOSED, 0),
 )
 
@@ -131,12 +126,13 @@ def _build_epm_state(case: Case, asserted_standing: EpistemicStanding) -> Eviden
     else:
         entailment_status = EntailmentStatus.UNESTABLISHED
 
-    premise_state = PremiseState.ESTABLISHED if case.support else PremiseState.UNKNOWN
     constraint = Constraint(
         constraint_id=f"constraint-{case.case_id}",
         proposition="X",
         premise_refs=("support-X",),
-        premise_states={"support-X": premise_state},
+        premise_states={
+            "support-X": PremiseState.ESTABLISHED if case.support else PremiseState.UNKNOWN
+        },
         provenance_refs=(availability.provenance_ref,) if case.provenance else (),
         entailment_basis="rule-inference-v1" if case.entailment == "ESTABLISHED" else "",
         entailment_status=entailment_status,
@@ -170,17 +166,13 @@ def _build_tvc_snapshot(case: Case, asserted_standing: str) -> tvc.EpistemicSnap
 
     if case.entailment == "ESTABLISHED":
         conditions["entailment"] = _condition("entailment")
-    elif case.entailment == "CONTRADICTED":
-        conditions["entailment"] = _condition("entailment", tvc.ObligationStatus.FAILED)
     elif asserted_standing == "INFERRED":
-        # Missing/unknown entailment remains explicit rather than fabricated.
         conditions["entailment"] = _condition("entailment", tvc.ObligationStatus.FAILED)
 
     if case.contradictions == "SATISFIED":
         conditions["contradictions"] = _condition("contradictions")
     elif case.contradictions == "FAILED":
         conditions["contradictions"] = _condition("contradictions", tvc.ObligationStatus.FAILED)
-    # UNRESOLVED intentionally means no disposition record is fabricated.
 
     return tvc.EpistemicSnapshot(
         state_id=f"state-{case.case_id}",
@@ -193,7 +185,11 @@ def _build_tvc_snapshot(case: Case, asserted_standing: str) -> tvc.EpistemicSnap
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c.case_id)
 def test_tvc_differential_assurance_matrix(case: Case):
-    asserted = EpistemicStanding.EVIDENCED if case.case_id == "evidenced-no-inference-duty" else EpistemicStanding.INFERRED
+    asserted = (
+        EpistemicStanding.EVIDENCED
+        if case.case_id == "evidenced-no-inference-duty"
+        else EpistemicStanding.INFERRED
+    )
 
     epm_state = _build_epm_state(case, asserted)
     epm_report = inspect_state(epm_state)
@@ -206,16 +202,21 @@ def test_tvc_differential_assurance_matrix(case: Case):
     assert (epm_failures > 0) is case.expected_epm_failure
     assert result.status is case.expected_tvc_status
 
-    # Differential value is binary at the case level: TVC earns +1 only where
-    # it correctly identifies a closure defect that current EPM inspection does not.
     delta = int(tvc_failures > 0 and epm_failures == 0)
     assert delta == case.expected_delta
 
     if case.case_id == "missing-contradiction-disposition":
         assert result.closure_boundary == "contradictions"
         assert result.reproduced_standing == "EVIDENCED"
-    if case.case_id == "clean-closure":
+    elif case.case_id == "clean-closure":
         assert result.closure_boundary is None
         assert result.reproduced_standing == "INFERRED"
-    if case.case_id == "evidenced-no-inference-duty":
+    elif case.case_id == "explicit-contradiction":
+        assert any(item.status is ConstraintStatus.CONTRADICTED for item in epm_report.constraint_results)
+        assert result.closure_boundary == "entailment"
+    elif case.case_id == "missing-entailment":
+        assert any(item.status is ConstraintStatus.UNSUPPORTED for item in epm_report.constraint_results)
+        assert result.closure_boundary == "entailment"
+    elif case.case_id == "evidenced-no-inference-duty":
         assert all(obligation.obligation_id != "contradictions" for obligation in result.obligations)
+        assert result.reproduced_standing == "EVIDENCED"
