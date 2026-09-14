@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "epm-evidentiary-provenance-model"
+version = "0.1.0rc1"
+description = "Domain-neutral evidentiary provenance and epistemic integrity engine"
+readme = "RUNTIME.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{name = "Rick Paslay"}]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9",
+  "ruff>=0.16,<0.17",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["epm*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# Preserve the executed str+Enum compatibility behavior at the RC boundary;
+# StrEnum changes string rendering. E501 is formatting, not semantic correctness.
+ignore = ["E501", "UP042"]
+
+[tool.pytest.ini_options]
+addopts = "-q --tb=short"
+testpaths = ["tests"]
