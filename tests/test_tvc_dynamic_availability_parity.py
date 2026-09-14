@@ -14,6 +14,7 @@ from epm import (
     RuleBinding,
     State,
     TemporalAvailability,
+    assess_temporal_availability,
     inspect_state,
 )
 from epm.justification import (
@@ -113,6 +114,57 @@ def _obligation_ids() -> tuple[str, ...]:
     )
 
 
+def _generic_equal_information_control(
+    graph: JustificationGraph,
+    *,
+    target_id: str,
+    records: tuple[EvidenceAvailability, ...],
+):
+    """Independent graph traversal using only EPM public availability semantics."""
+    incoming: dict[str, list[SupportEdge]] = {node_id: [] for node_id in graph.nodes}
+    for edge in graph.edges:
+        incoming.setdefault(edge.target_id, []).append(edge)
+
+    obligation_ids: set[str] = set()
+    visited: set[tuple[str, str, str]] = set()
+    stack = [target_id]
+    while stack:
+        target = stack.pop()
+        for edge in incoming.get(target, []):
+            key = (edge.source_id, edge.target_id, edge.relation.value)
+            if key in visited:
+                continue
+            visited.add(key)
+            source = graph.nodes.get(edge.source_id)
+            if source is None:
+                continue
+            obligation_ids.add(
+                f"{edge.relation.value}:{edge.source_id}->{edge.target_id}"
+            )
+            if source.node_type not in {
+                JustificationNodeType.EVIDENCE,
+                JustificationNodeType.ATTESTATION,
+            }:
+                stack.append(edge.source_id)
+
+    by_id = {record.evidence_id: record for record in records}
+    return tuple(
+        assess_temporal_availability(
+            evidence_id=obligation_id,
+            state_at=CLAIM_AT,
+            availability=by_id.get(obligation_id),
+        )
+        for obligation_id in sorted(obligation_ids)
+    )
+
+
+def _signature(results):
+    return tuple(
+        (result.evidence_id, result.status, result.trusted, result.reason_code)
+        for result in results
+    )
+
+
 def test_missing_graph_dependency_availability_is_candidate_incremental_delta():
     """Same graph, same absence: EPM does not currently derive the missing duties."""
     state = _epm_state()
@@ -195,3 +247,39 @@ def test_complete_historical_dependency_set_closes_without_fabricated_failure():
         result.status is TemporalAvailability.AVAILABLE and result.trusted
         for result in dynamic_results
     )
+
+
+def test_dynamic_graph_availability_is_reproducible_by_equal_information_control():
+    """Candidate assurance delta is orchestration, not a unique primitive.
+
+    An independent traversal of the same graph plus EPM's existing temporal
+    primitive reproduces TVC's dynamic availability result. This preserves the
+    distinction between incremental behavior relative to inspect_state() and a
+    claim that TVC uses an irreducible validation mechanism.
+    """
+    cases = (
+        (),
+        tuple(_availability(obligation_id, CLAIM_AT) for obligation_id in _obligation_ids()),
+        tuple(
+            _availability(
+                obligation_id,
+                CLAIM_AT + timedelta(minutes=1)
+                if obligation_id.startswith("DERIVATION_INPUT:")
+                else CLAIM_AT,
+            )
+            for obligation_id in _obligation_ids()
+        ),
+    )
+    for records in cases:
+        actual = dynamic.assess_graph_obligation_availability(
+            _graph(),
+            target_id="claim-X",
+            state_at=CLAIM_AT,
+            availability=records,
+        )
+        control = _generic_equal_information_control(
+            _graph(),
+            target_id="claim-X",
+            records=records,
+        )
+        assert _signature(actual) == _signature(control)
