@@ -10,19 +10,20 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from epm import (
+    EPM_ENGINE_VERSION,
     AssuranceContext,
     AssuranceState,
     AvailabilityAttestation,
     EvidenceAvailability,
     EvidentiaryEnvelope,
     EvidentiaryState,
-    EPM_ENGINE_VERSION,
     PreservationProof,
     RuleBinding,
     State,
