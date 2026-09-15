@@ -94,6 +94,7 @@ class PreservationProof:
     authority: str = ""
     evidence_refs: tuple[str, ...] = ()
     valid: bool = True
+    boundary_validated: bool = False
     reason: str = ""
     property: Property | None = None
     source_purpose: str | None = None
@@ -136,8 +137,29 @@ def _is_valid_source(value: AssuranceState) -> bool:
     return value in {AssuranceState.PRESERVED, AssuranceState.VALID}
 
 
+def _timezone_aware(value: datetime | None) -> bool:
+    return value is not None and value.tzinfo is not None and value.utcoffset() is not None
+
+
+def _context_or_rule_changed(transition: Transition) -> bool:
+    src = transition.source.context
+    dst = transition.target.context
+    return any(
+        (
+            src.identity != dst.identity,
+            src.purpose != dst.purpose,
+            src.scope != dst.scope,
+            src.jurisdiction != dst.jurisdiction,
+            src.at != dst.at,
+            transition.source.rule != transition.target.rule,
+        )
+    )
+
+
 def is_material(transition: Transition, property_name: str) -> bool:
-    return property_name in transition.material_properties
+    if property_name in transition.material_properties:
+        return True
+    return property_name == Property.APPLICABILITY.value and _context_or_rule_changed(transition)
 
 
 def preservation_established(transition: Transition, property_name: str) -> bool:
@@ -145,6 +167,7 @@ def preservation_established(transition: Transition, property_name: str) -> bool
     if (
         proof is None
         or not proof.valid
+        or not proof.boundary_validated
         or proof.normalized_property_name() != property_name
     ):
         return False
@@ -157,12 +180,12 @@ def preservation_established(transition: Transition, property_name: str) -> bool
         or not proof.evidence_refs
     ):
         return False
-    if (
-        rule.effective_at
-        and transition.target.context.at
-        and rule.effective_at > transition.target.context.at
-    ):
-        return False
+    if rule.effective_at is not None:
+        target_at = transition.target.context.at
+        if not _timezone_aware(rule.effective_at) or not _timezone_aware(target_at):
+            return False
+        if rule.effective_at > target_at:
+            return False
     src = transition.source.context
     dst = transition.target.context
     declared_actual = (
@@ -224,7 +247,7 @@ def evaluate_transition(
                 AssuranceState.PRESERVED,
                 Decision.AUTHORIZED,
                 FailureCode.NONE,
-                "Transition is outside the declared materiality boundary for this property.",
+                "Transition is outside the materiality boundary for this property.",
             )
         return _result(
             transition,
@@ -243,12 +266,15 @@ def evaluate_transition(
             AssuranceState.PRESERVED,
             Decision.AUTHORIZED,
             FailureCode.NONE,
-            "Explicit preservation relation established for the material transition.",
+            "Explicit boundary-validated preservation relation established for the material transition.",
         )
 
     src = transition.source.context
     dst = transition.target.context
-    if proof is not None and proof.valid and proof.authority != transition.target.rule.authority:
+    if proof is not None and proof.valid and not proof.boundary_validated:
+        failure = FailureCode.PRESERVATION_UNESTABLISHED
+        reason = "Preservation proof was not validated at the ingestion boundary."
+    elif proof is not None and proof.valid and proof.authority != transition.target.rule.authority:
         failure = FailureCode.AUTHORITY_MISMATCH
         reason = "Preservation proof was issued by an authority not bound to the target rule."
     elif src.purpose != dst.purpose or src.scope != dst.scope:
