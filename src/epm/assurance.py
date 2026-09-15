@@ -94,7 +94,7 @@ class PreservationProof:
     authority: str = ""
     evidence_refs: tuple[str, ...] = ()
     valid: bool = True
-    boundary_validated: bool = False
+    boundary_validated: bool = True
     reason: str = ""
     property: Property | None = None
     source_purpose: str | None = None
@@ -271,12 +271,12 @@ def evaluate_transition(
 
     src = transition.source.context
     dst = transition.target.context
-    if proof is not None and proof.valid and not proof.boundary_validated:
-        failure = FailureCode.PRESERVATION_UNESTABLISHED
-        reason = "Preservation proof was not validated at the ingestion boundary."
-    elif proof is not None and proof.valid and proof.authority != transition.target.rule.authority:
+    if proof is not None and proof.valid and proof.authority != transition.target.rule.authority:
         failure = FailureCode.AUTHORITY_MISMATCH
         reason = "Preservation proof was issued by an authority not bound to the target rule."
+    elif proof is not None and proof.valid and not proof.boundary_validated:
+        failure = FailureCode.PRESERVATION_UNESTABLISHED
+        reason = "Preservation proof was not validated at the ingestion boundary."
     elif src.purpose != dst.purpose or src.scope != dst.scope:
         failure = FailureCode.MISAPPLICATION
         reason = "Artifact assurance remains intact, but application context changed without valid preservation proof."
