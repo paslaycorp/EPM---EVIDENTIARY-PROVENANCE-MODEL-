@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/epm/schemas/epm-fap-evidence-receipt-v1.schema.json",
+  "title": "EPM-FAP Evidence Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_version",
+    "receipt_id",
+    "evidence_id",
+    "source",
+    "provenance_ref",
+    "observed_at",
+    "available_at",
+    "attestation",
+    "boundary_validation",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "epm-fap-evidence-receipt/1.0"},
+    "contract_version": {"const": "epm-fap-assurance/1.0"},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "evidence_id": {"type": "string", "minLength": 1},
+    "source": {"type": "string", "minLength": 1},
+    "provenance_ref": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "available_at": {"type": "string", "format": "date-time"},
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attestation_id", "authority", "method", "basis", "validated"],
+      "properties": {
+        "attestation_id": {"type": "string", "minLength": 1},
+        "authority": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "basis": {"type": "string", "minLength": 1},
+        "validated": {"type": "boolean"}
+      }
+    },
+    "boundary_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Result produced or independently verified by the trusted ingestion adapter. Presence in an untrusted payload is not authoritative.",
+      "required": ["validated", "validator", "method", "basis", "validated_at"],
+      "properties": {
+        "validated": {"type": "boolean", "readOnly": true},
+        "validator": {"type": "string", "minLength": 1, "readOnly": true},
+        "method": {"type": "string", "minLength": 1, "readOnly": true},
+        "basis": {"type": "string", "minLength": 1, "readOnly": true},
+        "validated_at": {"type": "string", "format": "date-time", "readOnly": true}
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["component", "repository", "commit_sha"],
+      "properties": {
+        "component": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "commit_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    }
+  }
+}
