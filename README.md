@@ -149,17 +149,15 @@ The gauntlet attacks purpose, scope, jurisdiction, time, rule/version, authority
 
 It emits an `epm.external-validation-receipt/1.0` artifact instead of a confidence score. A failed invariant makes the process exit non-zero.
 
-## $1,000 EPM Break Prize
+## EPM Break Challenge
 
-The frozen v0.1.1 boundary is now under an open adversarial research prize.
-
-The first independent researcher to produce a complete, reproducible **material invariant violation** against the exact v0.1.1 runtime receives **US$1,000** after the finding is independently reproduced and eligibility is verified.
+The frozen v0.1.1 boundary is open to independent adversarial review. This is a technical falsification challenge, not a cash bounty.
 
 The target does not move:
 
 `87903f2d53531bf28d97f1271af62b6d9b3e64be`
 
-See [`EPM-BREAK-PRIZE.md`](EPM-BREAK-PRIZE.md) for the formal rules and [`BREAK-PRIZE-ANNOUNCEMENT.md`](BREAK-PRIZE-ANNOUNCEMENT.md) for the concise public challenge.
+See [`EPM-BREAK-CHALLENGE.md`](EPM-BREAK-CHALLENGE.md) for the challenge rules and [`BREAK-CHALLENGE-ANNOUNCEMENT.md`](BREAK-CHALLENGE-ANNOUNCEMENT.md) for the concise public version.
 
 > Don’t tell me EPM works. Don’t tell me it doesn’t. Make the evidence decide.
 
