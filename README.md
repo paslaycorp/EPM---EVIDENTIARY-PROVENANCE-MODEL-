@@ -17,6 +17,10 @@ The verified v0.1.1 runtime is commit:
 
 `87903f2d53531bf28d97f1271af62b6d9b3e64be`
 
+Release tag:
+
+`v0.1.1`
+
 Final release branch:
 
 `release/epm-v0.1.1-2026-09-14`
@@ -26,6 +30,8 @@ The runtime is certified on Python 3.12 and 3.13. FAP-Insurance consumes this ex
 v0.1.1 is a narrow corrective patch over the frozen v0.1.0 release. It adds explicit rejection of governing rules whose `effective_at` occurs after the historical epistemic state being inspected. It does not reopen the epistemic ladder, answer-space semantics, transition authorization model, or connector claims.
 
 Historical v0.1.0 remains preserved at its own release branch and is not rewritten.
+
+Post-release files on `main` add documentation, examples, adversarial validation tooling, governance targets, and supply-chain proof. They do not redefine the v0.1.1 runtime release commit.
 
 ## Install
 
@@ -124,21 +130,74 @@ Executable examples are under [`examples/`](examples/):
 - `basic_transition.py` — unchanged context authorizes;
 - `temporal_availability.py` — later evidence cannot be used retroactively;
 - `future_effective_rule.py` — a future-effective rule cannot govern an earlier state;
-- `legal_secondary_use.py` — intact evidence can still be denied for unauthorized secondary use.
+- `legal_secondary_use.py` — intact evidence can still be denied for unauthorized secondary use;
+- `legal_chain_of_custody.py` — explicit custody/use preservation authorizes one legal use while unauthorized secondary disclosure is denied.
+
+## Blackbox Gauntlet
+
+The repository includes a machine-readable adversarial harness:
+
+[`EPM-BLACKBOX-GAUNTLET.md`](EPM-BLACKBOX-GAUNTLET.md)
+
+Run it with:
+
+```bash
+python tools/epm_gauntlet.py --output validation-receipt.json
+```
+
+The gauntlet attacks purpose, scope, jurisdiction, time, rule/version, authority, UNKNOWN inflation, future-rule leakage, evidence-availability leakage, computation-to-observation laundering, and derivation-to-resolution laundering.
+
+It emits an `epm.external-validation-receipt/1.0` artifact instead of a confidence score. A failed invariant makes the process exit non-zero.
 
 ## External validation
 
-The recommended red-team target is deliberately narrow:
+The recommended red-team target remains deliberately narrow:
 
 > Make EPM authorize or accept a state where evidence gains applicability, authority, certainty, or temporal legitimacy that it did not possess.
 
 See [`EXTERNAL-RED-TEAM.md`](EXTERNAL-RED-TEAM.md) for the attack contract and reporting format.
+
+The Blackbox Gauntlet does not replace independent review. It gives an independent reviewer a common attack deck and a reproducible receipt format.
+
+## Supply-chain proof
+
+See [`SUPPLY-CHAIN.md`](SUPPLY-CHAIN.md).
+
+The post-release supply-chain workflow can build an exact target ref and produce:
+
+- wheel and source distribution;
+- SHA-256 manifest;
+- CycloneDX 1.6 SBOM;
+- GitHub build provenance attestations.
+
+The v0.1.1 tag remains immutable; newer workflow machinery checks out that exact target instead of moving the tag.
+
+## Standards interoperability
+
+See [`STANDARDS-INTEROP.md`](STANDARDS-INTEROP.md).
+
+The central interoperability rule is:
+
+`provenance proof != permission proof`
+
+EPM can consume validated provenance evidence from systems such as C2PA while separately governing whether that evidence may support a particular action under the current purpose, scope, authority, jurisdiction, rule, time, and consequence.
+
+## Governance
+
+The exact intended `main` ruleset is committed under:
+
+- [`08_GOVERNANCE/main-ruleset-target.json`](08_GOVERNANCE/main-ruleset-target.json)
+- [`08_GOVERNANCE/main-ruleset-application.md`](08_GOVERNANCE/main-ruleset-application.md)
+
+The ruleset requires the PR path, both Python 3.12/3.13 EPM Runtime CI checks, strict up-to-date branches, force-push blocking, deletion blocking, and a named PR-only emergency bypass. Applying the repository-admin control remains a GitHub administration boundary.
 
 ## Repository map
 
 - `src/epm/` — standalone runtime
 - `tests/` — certification and adversarial tests
 - `examples/` — executable reference demonstrations
+- `tools/` — external validation tooling
+- `schemas/` — machine-readable interoperability/validation schemas
 - `01_CANONICAL/` — canonical architecture material
 - `03_SPEC/` — adversarial specification
 - `04_TESTS/` — conformance records
@@ -158,6 +217,9 @@ EPM v0.1.1 does **not** claim:
 - that capture time proves evidence availability;
 - that a valid artifact is automatically applicable to a new purpose;
 - that computation becomes observation;
+- formal C2PA certification or endorsement;
+- formal SLSA level conformance;
+- universal legal admissibility;
 - TVC implementation;
 - Variant Hunter implementation.
 
