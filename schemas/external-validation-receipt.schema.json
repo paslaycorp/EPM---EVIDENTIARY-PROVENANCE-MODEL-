@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/paslaycorp/EPM---EVIDENTIARY-PROVENANCE-MODEL-/schemas/external-validation-receipt.schema.json",
+  "title": "EPM External Validation Receipt",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "engine_version",
+    "release_sha",
+    "python_version",
+    "total_cases",
+    "passed_cases",
+    "failed_cases",
+    "result",
+    "cases"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "epm.external-validation-receipt/1.0"
+    },
+    "engine_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "python_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "total_cases": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "passed_cases": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failed_cases": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "result": {
+      "enum": ["PASS", "FAIL"]
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "case_id",
+          "attack_class",
+          "invariant",
+          "passed",
+          "observed",
+          "expected"
+        ],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1},
+          "attack_class": {"type": "string", "minLength": 1},
+          "invariant": {"type": "string", "minLength": 1},
+          "passed": {"type": "boolean"},
+          "observed": {"type": "object"},
+          "expected": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

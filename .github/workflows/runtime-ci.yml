@@ -6,6 +6,7 @@ on:
       - main
       - 'vnext/**'
       - 'rc/**'
+      - 'postrelease/**'
   pull_request:
     branches: [main]
 
@@ -32,10 +33,12 @@ jobs:
         run: ruff check src/epm
       - name: Lint public reference examples
         run: ruff check examples
+      - name: Lint external validation tools
+        run: ruff check tools
       - name: Lint certification tests for correctness
         run: ruff check --select F tests
-      - name: Compile runtime and public examples
-        run: python -m compileall -q src/epm examples
+      - name: Compile runtime examples and validation tools
+        run: python -m compileall -q src/epm examples tools
       - name: Import public package
         run: python -c "import epm; print(epm.EPM_ENGINE_VERSION)"
       - name: Execute public reference examples
@@ -44,6 +47,19 @@ jobs:
           python examples/temporal_availability.py
           python examples/future_effective_rule.py
           python examples/legal_secondary_use.py
+          python examples/legal_chain_of_custody.py
+      - name: Run Blackbox Gauntlet
+        run: |
+          python tools/epm_gauntlet.py --output /tmp/epm-validation-receipt.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          receipt = json.loads(Path('/tmp/epm-validation-receipt.json').read_text())
+          assert receipt['result'] == 'PASS'
+          assert receipt['failed_cases'] == 0
+          assert receipt['total_cases'] >= 12
+          PY
       - name: Certification suite
         run: pytest -q
       - name: Build distribution

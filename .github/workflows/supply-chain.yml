@@ -1,0 +1,114 @@
+name: EPM Supply Chain Proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref, tag, branch, or SHA to package and attest"
+        required: true
+        default: "v0.1.1"
+        type: string
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  package-and-attest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve target ref
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            ref="${{ inputs.ref }}"
+          else
+            ref="${GITHUB_REF_NAME}"
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact target
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.target.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Verify package identity
+        run: |
+          python - <<'PY'
+          import pathlib
+          import tomllib
+
+          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          project = data["project"]
+          assert project["name"] == "epm-evidentiary-provenance-model"
+          assert project["version"] == "0.1.1"
+          print(f"{project['name']}=={project['version']}")
+          PY
+
+      - name: Build wheel and source distribution
+        run: python -m build
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          bom = {
+              "bomFormat": "CycloneDX",
+              "specVersion": "1.6",
+              "version": 1,
+              "metadata": {
+                  "component": {
+                      "type": "library",
+                      "bom-ref": "pkg:pypi/epm-evidentiary-provenance-model@0.1.1",
+                      "name": "epm-evidentiary-provenance-model",
+                      "version": "0.1.1",
+                      "purl": "pkg:pypi/epm-evidentiary-provenance-model@0.1.1",
+                  }
+              },
+              "components": [],
+          }
+          Path("dist/epm-v0.1.1.cdx.json").write_text(
+              json.dumps(bom, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Generate SHA-256 manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum *.whl *.tar.gz *.cdx.json | sort > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Upload package proof bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: epm-supply-chain-${{ steps.target.outputs.ref }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
