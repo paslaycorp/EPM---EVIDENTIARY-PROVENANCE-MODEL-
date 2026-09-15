@@ -27,7 +27,7 @@ def test_blackbox_gauntlet_passes_every_declared_invariant(tmp_path):
 
     assert receipt["schema_version"] == GAUNTLET_SCHEMA
     assert receipt["release_sha"] == RELEASE_SHA
-    assert receipt["engine_version"] == "epm-engine/0.1.1"
+    assert receipt["engine_version"] == "epm-engine/0.1.2"
     assert receipt["total_cases"] >= 12
     assert receipt["failed_cases"] == 0
     assert receipt["passed_cases"] == receipt["total_cases"]

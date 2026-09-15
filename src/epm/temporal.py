@@ -49,12 +49,14 @@ def _aware(value: datetime) -> bool:
 
 def is_trusted_availability(record: EvidenceAvailability, evidence_id: str) -> bool:
     attestation = record.attestation
+    if record.evidence_id != evidence_id:
+        return False
+    if not _aware(record.available_at) or not _aware(record.observed_at):
+        return False
+    if record.observed_at < record.available_at:
+        return False
     return all(
         (
-            record.evidence_id == evidence_id,
-            _aware(record.available_at),
-            _aware(record.observed_at),
-            record.observed_at >= record.available_at,
             bool(record.source.strip()),
             bool(record.provenance_ref.strip()),
             bool(attestation.attestation_id.strip()),
