@@ -1,4 +1,4 @@
-# EPM Runtime — v0.1.1
+# EPM Runtime — v0.1.2
 
 ## Purpose
 
@@ -42,19 +42,31 @@ That connector establishes availability only inside the bounded GitHub Actions i
 
 FAP-Insurance separately implements a production request-receipt connector at its domain boundary. That integration attests only that an authenticated FAP request contained an exact SHA-256 evidence reference at the server receipt time. It does not backdate availability to the claimed capture/event time and does not prove external media existence before FAP observed the reference.
 
-Accordingly, EPM v0.1.1 supplies the generic temporal machinery and reference connector contract; production adapters remain responsible for supplying trustworthy, correctly bounded availability provenance.
+Accordingly, EPM v0.1.2 supplies the generic temporal machinery and reference connector contract; production adapters remain responsible for supplying trustworthy, correctly bounded availability provenance.
 
 ### Rule-time admissibility
 
 An epistemic state may not rely on a governing rule that was not yet effective at that state's historical time.
 
-`inspect_state(...)` therefore reports:
+`inspect_state(...)` reports:
 
 - `RULE_NOT_YET_EFFECTIVE` when `RuleBinding.effective_at` is later than `AssuranceContext.at`;
 - `RULE_EFFECTIVE_TIME_UNCOMPARABLE` when the supplied rule-effective time cannot be safely compared;
 - `STATE_TIME_UNCOMPARABLE_FOR_RULE` when a rule-effective time exists but the epistemic-state time is absent or uncomparable.
 
-The runtime preserves temporal uncertainty rather than guessing when the two times cannot be legitimately ordered.
+The transition path also refuses to treat incomparable rule/state timestamps as a valid preservation relation. Mixed timezone-aware and timezone-naive values must not escape as an unhandled comparison exception.
+
+### Availability-time comparability
+
+Evidence-availability trust is evaluated only after both `available_at` and `observed_at` are confirmed timezone-aware. An uncomparable availability record is reported as untrusted/unknown rather than raising during timestamp ordering.
+
+## Materiality and preservation boundaries
+
+For the `applicability` property, EPM no longer relies exclusively on the caller's `material_properties` declaration. A change in identity, purpose, scope, jurisdiction, temporal context, or governing rule is itself sufficient to make the transition material.
+
+`PreservationProof` also carries an explicit `boundary_validated` state. A proof may be internally well-formed (`valid=True`) while still being ineligible to authorize a material transition because an ingestion boundary did not validate it. Adapters accepting untrusted external proof claims are responsible for marking those claims unvalidated until their own trust procedure succeeds.
+
+The typed low-level API preserves backward compatibility for already trusted in-process `PreservationProof` construction. External/raw input must not acquire trusted proof status merely by copying matching metadata into a proof-shaped object.
 
 ## Operator audit artifact
 
@@ -75,7 +87,11 @@ The caller supplies the audit issue time explicitly. EPM does not inject an untr
 ## Failure behavior
 
 - UNKNOWN remains UNKNOWN/DEFER when required assurance is absent.
+- Material applicability changes are derived from the actual transition context even when the caller under-declares materiality.
 - Material context changes require valid preservation or fail closed.
+- Unvalidated preservation claims do not authorize material transitions.
+- Incomparable rule/state timestamps do not escape as Python comparison failures.
+- Incomparable evidence-availability timestamps remain untrusted/unknown.
 - Unsupported/invalidated constraints do not keep narrowing the answer space.
 - A singleton produced by constraints is not resolution.
 - Computation is not observation.
@@ -87,10 +103,17 @@ The caller supplies the audit issue time explicitly. EPM does not inject an untr
 
 ## Release boundary
 
-`0.1.1` is a bounded corrective release over the frozen `0.1.0` standalone runtime.
+`0.1.2` is a bounded corrective release candidate over `0.1.1`.
 
-The corrective semantic change is narrow: state inspection now enforces the already represented relationship between rule effective time and epistemic-state time. This closes an executable temporal-admissibility defect discovered by the isolated TVC falsification experiment. It does not merge TVC, change the epistemic ladder, alter answer-space semantics, or add a new authorization rule.
+The corrective scope is limited to four executable limit findings discovered by adversarial use of the public runtime:
 
-Production C-21 remains connector-scoped. The FAP production integration closes the authenticated request-receipt availability boundary, while media-origin or pre-receipt existence still requires an independent provenance source if a caller needs to make that stronger claim.
+1. caller under-declaration of material applicability could authorize a context-changing transition;
+2. mixed timezone-aware/timezone-naive rule and state timestamps could raise during preservation evaluation;
+3. mixed timezone-aware/timezone-naive availability timestamps could raise during trust evaluation;
+4. proof-shaped preservation input needed an explicit boundary-validation state distinct from internal proof validity.
 
-TVC and Variant Hunter are not part of EPM v0.1.1.
+The correction does not merge TVC, Variant Hunter, or a new epistemic ladder. It does not claim universal provenance, universal truth determination, or external proof authenticity where no validating integration exists.
+
+Production C-21 remains connector-scoped. FAP production adapters must be tested and repinned to the exact v0.1.2 release commit before the production integration can claim the strengthened boundary behavior.
+
+TVC and Variant Hunter remain outside EPM v0.1.2.
