@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from epm import (
     AssuranceContext,
     AssuranceState,
@@ -16,39 +18,68 @@ from epm import (
 )
 
 AWARE = datetime(2026, 9, 14, 12, 0, tzinfo=UTC)
+LATER = datetime(2026, 9, 14, 12, 1, tzinfo=UTC)
 NAIVE = datetime(2026, 9, 14, 12, 0)
 
 
 def _state(
     state_id: str,
     *,
+    identity: str = "subject",
     purpose: str = "review",
+    scope: str = "record",
+    jurisdiction: str = "US",
     at: datetime = AWARE,
+    rule_id: str = "rule",
+    rule_version: str = "1",
+    rule_authority: str = "authority",
+    rule_jurisdiction: str = "US",
     rule_effective_at: datetime = AWARE,
 ) -> State:
     return State(
         state_id,
         {"applicability": AssuranceState.PRESERVED},
         AssuranceContext(
-            identity="subject",
+            identity=identity,
             purpose=purpose,
-            scope="record",
-            jurisdiction="US",
+            scope=scope,
+            jurisdiction=jurisdiction,
             at=at,
         ),
         RuleBinding(
-            rule_id="rule",
-            version="1",
-            authority="authority",
-            jurisdiction="US",
+            rule_id=rule_id,
+            version=rule_version,
+            authority=rule_authority,
+            jurisdiction=rule_jurisdiction,
             effective_at=rule_effective_at,
         ),
     )
 
 
-def test_caller_cannot_hide_material_context_change_by_omitting_materiality():
-    source = _state("E-1", purpose="review")
-    target = _state("E-1:target", purpose="secondary-use")
+@pytest.mark.parametrize(
+    "target_overrides",
+    (
+        {"identity": "other-subject"},
+        {"purpose": "secondary-use"},
+        {"scope": "other-record"},
+        {"jurisdiction": "CA"},
+        {"at": LATER},
+        {"rule_version": "2"},
+    ),
+    ids=(
+        "identity",
+        "purpose",
+        "scope",
+        "jurisdiction",
+        "temporal-context",
+        "rule-binding",
+    ),
+)
+def test_caller_cannot_hide_material_applicability_change_by_omitting_materiality(
+    target_overrides,
+):
+    source = _state("E-1")
+    target = _state("E-1:target", **target_overrides)
     envelope = EvidentiaryEnvelope(
         transition_id="LIMIT-MATERIALITY-1",
         source=source,
@@ -61,18 +92,26 @@ def test_caller_cannot_hide_material_context_change_by_omitting_materiality():
     result = assess_transition(envelope)
 
     assert result["decision"] != "AUTHORIZED", (
-        "A caller-declared empty materiality set must not authorize a transition "
-        "whose purpose/scope/jurisdiction/time/rule context changed."
+        "A caller-declared empty materiality set must not authorize an applicability "
+        "transition whose identity/purpose/scope/jurisdiction/time/rule context changed."
     )
 
 
-def test_incomparable_rule_and_state_times_fail_typed_not_with_exception():
+@pytest.mark.parametrize(
+    ("target_at", "rule_effective_at"),
+    ((AWARE, NAIVE), (NAIVE, AWARE)),
+    ids=("naive-rule-aware-state", "aware-rule-naive-state"),
+)
+def test_incomparable_rule_and_state_times_fail_typed_not_with_exception(
+    target_at,
+    rule_effective_at,
+):
     source = _state("E-2")
     target = _state(
         "E-2:target",
         purpose="secondary-use",
-        at=AWARE,
-        rule_effective_at=NAIVE,
+        at=target_at,
+        rule_effective_at=rule_effective_at,
     )
     proof = PreservationProof(
         property_name="applicability",
@@ -103,11 +142,19 @@ def test_incomparable_rule_and_state_times_fail_typed_not_with_exception():
     assert result["decision"] != "AUTHORIZED"
 
 
-def test_incomparable_availability_times_fail_typed_not_with_exception():
+@pytest.mark.parametrize(
+    ("available_at", "observed_at"),
+    ((AWARE, NAIVE), (NAIVE, AWARE)),
+    ids=("aware-available-naive-observed", "naive-available-aware-observed"),
+)
+def test_incomparable_availability_times_fail_typed_not_with_exception(
+    available_at,
+    observed_at,
+):
     availability = EvidenceAvailability(
         evidence_id="E-3",
-        available_at=AWARE,
-        observed_at=NAIVE,
+        available_at=available_at,
+        observed_at=observed_at,
         source="probe",
         provenance_ref="prov:E-3",
         attestation=AvailabilityAttestation(
