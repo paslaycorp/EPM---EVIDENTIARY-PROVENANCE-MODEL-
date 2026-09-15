@@ -48,6 +48,7 @@ def test_unvalidated_proof_shaped_claim_cannot_authorize_material_transition():
         authority="authority",
         evidence_refs=("fabricated:unvalidated",),
         valid=True,
+        boundary_validated=False,
         source_purpose="review",
         target_purpose="secondary-use",
         source_scope="record",
@@ -72,3 +73,4 @@ def test_unvalidated_proof_shaped_claim_cannot_authorize_material_transition():
         "must not authorize a material transition unless proof trust was validated "
         "at the ingestion boundary."
     )
+    assert result["failure"] == "PRESERVATION_UNESTABLISHED"
