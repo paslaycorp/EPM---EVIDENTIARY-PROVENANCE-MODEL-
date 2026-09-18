@@ -1,4 +1,13 @@
-from experiments.tvc.selective_surface import material_counterfactual_frontier
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
+
+
+_MODULE_PATH = Path(__file__).resolve().parents[1] / "experiments" / "tvc" / "selective_surface.py"
+_SPEC = spec_from_file_location("tvc_selective_surface", _MODULE_PATH)
+assert _SPEC is not None and _SPEC.loader is not None
+_MODULE = module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+material_counterfactual_frontier = _MODULE.material_counterfactual_frontier
 
 
 def redundant_paths(active: frozenset[str]) -> str:
@@ -33,7 +42,6 @@ def test_same_endpoint_can_have_different_material_frontier():
     deps = {"a_support", "a_rule", "b_support", "b_rule", "provenance", "contradictions"}
 
     def later_semantics(active: frozenset[str]) -> str:
-        # Same full-set endpoint, but rule B silently becomes non-material.
         if {"a_support", "a_rule", "provenance", "contradictions"}.issubset(active):
             return "INFERRED"
         if {"b_support", "provenance", "contradictions"}.issubset(active):
