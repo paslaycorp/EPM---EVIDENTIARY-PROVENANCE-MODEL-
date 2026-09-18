@@ -1,11 +1,13 @@
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+import sys
 
 
 _MODULE_PATH = Path(__file__).resolve().parents[1] / "experiments" / "tvc" / "selective_surface.py"
 _SPEC = spec_from_file_location("tvc_selective_surface", _MODULE_PATH)
 assert _SPEC is not None and _SPEC.loader is not None
 _MODULE = module_from_spec(_SPEC)
+sys.modules[_SPEC.name] = _MODULE
 _SPEC.loader.exec_module(_MODULE)
 material_counterfactual_frontier = _MODULE.material_counterfactual_frontier
 
