@@ -120,3 +120,51 @@ def test_monotone_frontier_still_compresses_after_full_boundary_audit():
     assert audit.recovery_crossings == ()
     assert frontier.minimal_failure_interventions == ((("a",), "EVIDENCED"),)
     assert len(frontier.minimal_failure_interventions) < (2 ** len(deps))
+
+
+def test_exhaustive_three_dependency_surfaces_validate_compression_gate():
+    deps = ("a", "b", "c")
+    full = frozenset(deps)
+    removals = [
+        frozenset(removed)
+        for size in range(1, len(deps) + 1)
+        for removed in __import__("itertools").combinations(deps, size)
+    ]
+
+    for pattern in range(1 << len(removals)):
+        failed = {
+            removed
+            for index, removed in enumerate(removals)
+            if pattern & (1 << index)
+        }
+
+        def semantics(active: frozenset[str], failed=failed) -> str:
+            removed = full - active
+            return "EVIDENCED" if removed in failed else "INFERRED"
+
+        expected_monotone = all(
+            not any(
+                failed_set.issubset(candidate) and candidate not in failed
+                for candidate in removals
+            )
+            for failed_set in failed
+        )
+        audit = analyze_counterfactual_boundary(deps, semantics)
+        assert audit.baseline_failure_monotone is expected_monotone
+
+        if not expected_monotone:
+            with pytest.raises(NonMonotonicFrontierError):
+                material_counterfactual_frontier(deps, semantics)
+            continue
+
+        frontier = material_counterfactual_frontier(deps, semantics)
+        minimal = {
+            frozenset(removed)
+            for removed, _ in frontier.minimal_failure_interventions
+        }
+        represented = {
+            candidate
+            for candidate in removals
+            if any(seed.issubset(candidate) for seed in minimal)
+        }
+        assert represented == failed
