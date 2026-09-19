@@ -6,7 +6,6 @@ on:
       ref:
         description: "Git ref, tag, branch, or SHA to package and attest"
         required: true
-        default: "v0.1.1"
         type: string
   push:
     tags:
@@ -50,26 +49,63 @@ jobs:
           python -m pip install build
 
       - name: Verify package identity
+        id: package
+        env:
+          TARGET_REF: ${{ steps.target.outputs.ref }}
         run: |
           python - <<'PY'
+          import os
           import pathlib
+          import subprocess
           import tomllib
 
-          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))
+          data = tomllib.loads(
+              pathlib.Path("pyproject.toml").read_text(encoding="utf-8")
+          )
           project = data["project"]
-          assert project["name"] == "epm-evidentiary-provenance-model"
-          assert project["version"] == "0.1.1"
-          print(f"{project['name']}=={project['version']}")
+          name = project["name"]
+          version = project["version"]
+          target_ref = os.environ["TARGET_REF"]
+
+          assert name == "epm-evidentiary-provenance-model"
+
+          tag_exists = subprocess.run(
+              ["git", "show-ref", "--verify", "--quiet", f"refs/tags/{target_ref}"],
+              check=False,
+          ).returncode == 0
+
+          if tag_exists:
+              expected_tag = f"v{version}"
+              assert target_ref == expected_tag, (
+                  f"Release tag {target_ref!r} does not match package version "
+                  f"{version!r}; expected {expected_tag!r}"
+              )
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print(f"name={name}", file=output)
+              print(f"version={version}", file=output)
+
+          print(f"{name}=={version}")
+          print(f"target_ref={target_ref}")
+          print(f"target_sha={subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()}")
           PY
 
       - name: Build wheel and source distribution
         run: python -m build
 
       - name: Generate CycloneDX SBOM
+        env:
+          PACKAGE_NAME: ${{ steps.package.outputs.name }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
+
+          name = os.environ["PACKAGE_NAME"]
+          version = os.environ["PACKAGE_VERSION"]
+          purl = f"pkg:pypi/{name}@{version}"
 
           bom = {
               "bomFormat": "CycloneDX",
@@ -78,15 +114,16 @@ jobs:
               "metadata": {
                   "component": {
                       "type": "library",
-                      "bom-ref": "pkg:pypi/epm-evidentiary-provenance-model@0.1.1",
-                      "name": "epm-evidentiary-provenance-model",
-                      "version": "0.1.1",
-                      "purl": "pkg:pypi/epm-evidentiary-provenance-model@0.1.1",
+                      "bom-ref": purl,
+                      "name": name,
+                      "version": version,
+                      "purl": purl,
                   }
               },
               "components": [],
           }
-          Path("dist/epm-v0.1.1.cdx.json").write_text(
+
+          Path(f"dist/epm-v{version}.cdx.json").write_text(
               json.dumps(bom, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
           )
