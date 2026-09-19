@@ -2,6 +2,8 @@ from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 import sys
 
+import pytest
+
 
 _MODULE_PATH = Path(__file__).resolve().parents[1] / "experiments" / "tvc" / "selective_surface.py"
 _SPEC = spec_from_file_location("tvc_selective_surface", _MODULE_PATH)
@@ -9,7 +11,9 @@ assert _SPEC is not None and _SPEC.loader is not None
 _MODULE = module_from_spec(_SPEC)
 sys.modules[_SPEC.name] = _MODULE
 _SPEC.loader.exec_module(_MODULE)
+analyze_counterfactual_boundary = _MODULE.analyze_counterfactual_boundary
 material_counterfactual_frontier = _MODULE.material_counterfactual_frontier
+NonMonotonicFrontierError = _MODULE.NonMonotonicFrontierError
 
 
 def redundant_paths(active: frozenset[str]) -> str:
@@ -65,3 +69,54 @@ def test_frontier_is_order_invariant_and_deterministic():
     a = material_counterfactual_frontier(deps_a, redundant_paths)
     b = material_counterfactual_frontier(deps_b, redundant_paths)
     assert a == b
+
+
+def monotone_failure(active: frozenset[str]) -> str:
+    return "INFERRED" if "a" in active else "EVIDENCED"
+
+
+def recovery_island(active: frozenset[str]) -> str:
+    if "a" in active:
+        return "INFERRED"
+    if "b" not in active:
+        return "INFERRED"
+    return "EVIDENCED"
+
+
+def test_recovery_island_has_same_minimal_failure_as_monotone_system():
+    deps = {"a", "b", "c"}
+    monotone = analyze_counterfactual_boundary(deps, monotone_failure)
+    island = analyze_counterfactual_boundary(deps, recovery_island)
+
+    assert monotone.minimal_failure_interventions == island.minimal_failure_interventions
+    assert monotone.baseline_failure_monotone is True
+    assert island.baseline_failure_monotone is False
+    assert island.recovery_crossings
+    assert monotone.digest != island.digest
+
+
+def test_material_frontier_fails_closed_on_nonmonotonic_recovery():
+    deps = {"a", "b", "c"}
+
+    with pytest.raises(NonMonotonicFrontierError) as exc:
+        material_counterfactual_frontier(deps, recovery_island)
+
+    audit = exc.value.audit
+    assert audit.baseline_standing == "INFERRED"
+    assert audit.baseline_failure_monotone is False
+    assert any(
+        crossing.failed_intervention == ("a",)
+        and crossing.recovered_intervention == ("a", "b")
+        for crossing in audit.recovery_crossings
+    )
+
+
+def test_monotone_frontier_still_compresses_after_full_boundary_audit():
+    deps = {"a", "b", "c"}
+    audit = analyze_counterfactual_boundary(deps, monotone_failure)
+    frontier = material_counterfactual_frontier(deps, monotone_failure)
+
+    assert audit.baseline_failure_monotone is True
+    assert audit.recovery_crossings == ()
+    assert frontier.minimal_failure_interventions == ((("a",), "EVIDENCED"),)
+    assert len(frontier.minimal_failure_interventions) < (2 ** len(deps))
