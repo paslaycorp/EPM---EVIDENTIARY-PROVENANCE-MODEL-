@@ -19,8 +19,9 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8.3,<9",
-  "ruff>=0.16,<0.17",
+  "pytest==8.4.2",
+  "ruff==0.16.8",
+  "jsonschema==4.26.0",
 ]
 
 [tool.setuptools]
