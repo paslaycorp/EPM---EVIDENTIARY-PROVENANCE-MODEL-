@@ -1,6 +1,6 @@
-# Temporal Verification Closure v0.1 — Experimental Verifier
+# Temporal Verification Closure v0.2 — Current-Main Parity Candidate
 
-**Status:** experimental / falsification target  
+**Status:** experimental / current-main parity validated  
 **Boundary:** outside the EPM runtime package and outside the frozen EPM baseline  
 **Purpose:** determine whether conclusion-conditioned temporal closure produces incremental assurance beyond existing EPM inspection semantics.
 
@@ -27,7 +27,24 @@ This experiment does not claim novelty, patentability, production readiness, or 
 
 It does not authorize state transitions and does not rewrite EPM state. TVC emits an assurance result for a caller or governor to interpret.
 
-## v0.1 operations
+## v0.2 provenance
+
+- current hardened EPM base: `adb1c31cdb428816c95a3cf98c9a4427c13ec482`
+- frozen TVC v0.1 provenance head: `3bf03d1df25361941af042cf23a4559cce374fbe`
+- initial v0.2 forward-port: `9f823b5f753e4c35e139491e56eaec20b0587501`
+- parity CI: EPM Runtime CI run `35519465917`, green on Python 3.12 and 3.13
+
+The v0.2 candidate is a clean forward-port of the isolated TVC experiment onto current hardened EPM `main`. It does not modify `src/epm`, EPM public APIs, the Authority Envelope, the Maturity Boundary, release tags, or production authority.
+
+## Verified current-main delta
+
+Under the shared INFERRED parity fixture, EPM and TVC receive the same historical facts: support, provenance, entailment, the same asserted standing, and the same absence of a contradiction-disposition record.
+
+Current EPM inspection reports no failure on that fixture. TVC derives the contradiction-disposition obligation from the asserted INFERRED standing, preserves the missing disposition as unresolved, returns `UNRESOLVED`, and reproduces only `EVIDENCED`.
+
+This establishes a bounded incremental detection result against the current hardened EPM inspection surface. It does not establish that TVC uses a wholly irreducible primitive: the dynamic-availability parity tests separately demonstrate cases where TVC orchestration can be reproduced from equal-information EPM primitives.
+
+## v0.2 operations
 
 - `derive_obligations()`
 - `validate_historical_obligations()`
@@ -43,7 +60,7 @@ It does not authorize state transitions and does not rewrite EPM state. TVC emit
 
 ## Acceptance gate
 
-TVC earns further integration work only if executable tests demonstrate a material integrity failure that:
+TVC earns continued sibling-architecture research only while executable tests demonstrate a material integrity failure that:
 
 1. is not already detected by the EPM runtime under equivalent information;
 2. is not created by giving TVC information withheld from the control;
