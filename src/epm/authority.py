@@ -10,8 +10,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any
-
 from .assurance import Decision
 
 AUTHORITY_REQUEST_SCHEMA_VERSION = "epm.authority-request/1.0"
