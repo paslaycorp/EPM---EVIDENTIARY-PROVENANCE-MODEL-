@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/epm/schemas/epm-release-attestation-v1.schema.json",
+  "title": "EPM Release Attestation v1",
+  "description": "Canonical machine-readable evidence chain for an EPM-family release or deployment. This record describes provenance and verification; it does not itself grant operational authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "attestation_id",
+    "generated_at",
+    "subject",
+    "source",
+    "checks",
+    "artifacts",
+    "dependencies",
+    "deployment",
+    "runtime_verification",
+    "rollback"
+  ],
+  "properties": {
+    "schema_version": {"const": "epm-release-attestation/1.0"},
+    "attestation_id": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["component", "repository", "release_version"],
+      "properties": {
+        "component": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "release_version": {"type": "string", "minLength": 1},
+        "release_url": {"type": ["string", "null"]}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit_sha", "branch", "pull_request", "merge_commit_sha"],
+      "properties": {
+        "commit_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "branch": {"type": "string", "minLength": 1},
+        "pull_request": {"type": ["integer", "null"], "minimum": 1},
+        "merge_commit_sha": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "conclusion", "evidence_ref"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "conclusion": {"enum": ["success", "failure", "cancelled", "skipped", "neutral"]},
+          "evidence_ref": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "sha256"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "evidence_ref": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["component", "identity", "verified"],
+        "properties": {
+          "component": {"type": "string", "minLength": 1},
+          "identity": {"type": "string", "minLength": 1},
+          "verified": {"type": "boolean"},
+          "evidence_ref": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed", "authority", "target", "deployed_commit_sha", "evidence_ref"],
+      "properties": {
+        "performed": {"type": "boolean"},
+        "authority": {"type": "string", "minLength": 1},
+        "target": {"type": ["string", "null"]},
+        "deployed_commit_sha": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            {"type": "null"}
+          ]
+        },
+        "evidence_ref": {"type": ["string", "null"]}
+      }
+    },
+    "runtime_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed", "verified", "observed_commit_sha", "observed_at", "evidence_ref"],
+      "properties": {
+        "performed": {"type": "boolean"},
+        "verified": {"type": "boolean"},
+        "observed_commit_sha": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            {"type": "null"}
+          ]
+        },
+        "observed_at": {"type": ["string", "null"], "format": "date-time"},
+        "evidence_ref": {"type": ["string", "null"]}
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "target_commit_sha", "procedure_ref"],
+      "properties": {
+        "available": {"type": "boolean"},
+        "target_commit_sha": {
+          "oneOf": [
+            {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            {"type": "null"}
+          ]
+        },
+        "procedure_ref": {"type": ["string", "null"]}
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}
