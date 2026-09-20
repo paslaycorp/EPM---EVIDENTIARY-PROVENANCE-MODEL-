@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator\nfrom jsonschema.exceptions import ValidationError
 
 from epm.assurance import Decision
 from epm.authority import (
