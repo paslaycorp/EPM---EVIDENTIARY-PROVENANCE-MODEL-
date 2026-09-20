@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EPM Release Verification v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy",
+    "result",
+    "target",
+    "workflow",
+    "verifier",
+    "verified_subjects"
+  ],
+  "properties": {
+    "schema": {
+      "const": "epm.release-verification/v1"
+    },
+    "policy": {
+      "const": "EPM-SCP-V2"
+    },
+    "result": {
+      "enum": ["PASS", "FAIL", "QUARANTINE"]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "sha"],
+      "properties": {
+        "ref": {"type": "string", "minLength": 1},
+        "sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "ref", "sha", "run_id", "run_attempt"],
+      "properties": {
+        "repository": {"type": "string", "minLength": 3},
+        "ref": {"type": "string", "minLength": 1},
+        "sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "run_id": {"type": "integer", "minimum": 1},
+        "run_attempt": {"type": "integer", "minimum": 1}
+      }
+    },
+    "verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "github_cli",
+        "runner_os",
+        "runner_arch",
+        "deny_self_hosted_runners"
+      ],
+      "properties": {
+        "github_cli": {"type": "string", "minLength": 1},
+        "runner_os": {"type": ["string", "null"]},
+        "runner_arch": {"type": ["string", "null"]},
+        "deny_self_hosted_runners": {"const": true}
+      }
+    },
+    "verified_subjects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

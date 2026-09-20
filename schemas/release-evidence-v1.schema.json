@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EPM Release Evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "package",
+    "target",
+    "workflow",
+    "runner",
+    "toolchain",
+    "artifacts",
+    "sbom",
+    "policy"
+  ],
+  "properties": {
+    "schema": {
+      "const": "epm.release-evidence/v1"
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "sha", "source_date_epoch"],
+      "properties": {
+        "ref": {"type": "string", "minLength": 1},
+        "sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "source_date_epoch": {"type": "integer", "minimum": 0}
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "path",
+        "ref",
+        "sha",
+        "event",
+        "run_id",
+        "run_attempt"
+      ],
+      "properties": {
+        "repository": {"type": "string", "minLength": 3},
+        "path": {"const": ".github/workflows/supply-chain.yml"},
+        "ref": {"type": "string", "minLength": 1},
+        "sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "event": {"type": "string", "minLength": 1},
+        "run_id": {"type": "integer", "minimum": 1},
+        "run_attempt": {"type": "integer", "minimum": 1}
+      }
+    },
+    "runner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "arch", "image_os", "image_version", "platform"],
+      "properties": {
+        "os": {"type": ["string", "null"]},
+        "arch": {"type": ["string", "null"]},
+        "image_os": {"type": ["string", "null"]},
+        "image_version": {"type": ["string", "null"]},
+        "platform": {"type": "string", "minLength": 1}
+      }
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "python",
+        "pip",
+        "build",
+        "packaging",
+        "pyproject-hooks",
+        "setuptools",
+        "wheel"
+      ],
+      "properties": {
+        "python": {"type": "string", "minLength": 1},
+        "pip": {"type": "string", "minLength": 1},
+        "build": {"type": "string", "minLength": 1},
+        "packaging": {"type": "string", "minLength": 1},
+        "pyproject-hooks": {"type": "string", "minLength": 1},
+        "setuptools": {"type": "string", "minLength": 1},
+        "wheel": {"type": "string", "minLength": 1}
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "sbom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "format",
+        "spec_version",
+        "runtime_dependency_count"
+      ],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "format": {"const": "CycloneDX"},
+        "spec_version": {"const": "1.6"},
+        "runtime_dependency_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provenance_is_not_authorization",
+        "manual_dispatch_requires_main",
+        "runtime_dependencies_must_be_fully_resolved"
+      ],
+      "properties": {
+        "id": {"const": "EPM-SCP-V2"},
+        "provenance_is_not_authorization": {"const": true},
+        "manual_dispatch_requires_main": {"const": true},
+        "runtime_dependencies_must_be_fully_resolved": {"const": true}
+      }
+    }
+  }
+}
