@@ -22,11 +22,15 @@ No component may silently inherit another component's authority.
 
 Schema: `schemas/epm-fap-evidence-receipt-v1.schema.json`
 
+Canonical schema identifier: `urn:epm:schema:epm-fap-evidence-receipt:1.0`
+
 An Evidence Receipt records bounded facts about evidence availability, provenance, attestation, producing component, and an ingestion-boundary validation result. It is not a truth certificate and does not authorize a transition.
 
 ### Decision Receipt
 
 Schema: `schemas/epm-fap-decision-receipt-v1.schema.json`
+
+Canonical schema identifier: `urn:epm:schema:epm-fap-decision-receipt:1.0`
 
 A Decision Receipt records the exact EPM engine identity, exact EPM release commit, transition, assurance state, decision, failure code, rule binding, evidence references, and fail-closed status used for an evaluation.
 
@@ -35,13 +39,14 @@ A Decision Receipt records the exact EPM engine identity, exact EPM release comm
 1. **Raw input cannot self-authorize boundary trust.** A `boundary_validation.validated` value is authoritative only when produced or verified by the trusted ingestion adapter. Copying a field from an untrusted payload is not validation.
 2. **Internal proof validity and boundary validation are independent.** `PreservationProof.valid=True` cannot substitute for a legitimate ingestion-boundary trust decision.
 3. **Exact runtime provenance is mandatory.** A Decision Receipt identifies the exact EPM engine version and 40-character EPM release commit SHA used for the evaluation.
-4. **Uncertainty is conserved.** `UNKNOWN` and `DEFER` must not be promoted merely because a FAP score, confidence value, or verdict is strong.
-5. **FAP scores are observations, not EPM authority.** A score or verdict may contribute evidence but cannot by itself establish preservation, applicability, authority, temporal admissibility, or permission.
-6. **Material transitions remain EPM-governed.** Identity, purpose, scope, jurisdiction, temporal context, and rule-binding changes cannot be made non-material by caller omission.
-7. **Temporal comparison must be typed and comparable.** Incomparable or untrusted time evidence remains unresolved/fail-closed rather than raising or silently ordering values.
-8. **Decision receipts are non-destructive.** A downstream consumer may add domain execution metadata but may not rewrite the EPM state, decision, failure, rule binding, engine identity, or release SHA represented by the receipt.
-9. **Authority diagnostics retain precedence.** A wrong preservation authority remains `AUTHORITY_MISMATCH`; boundary validation must not conceal the authority failure.
-10. **No cross-component trust by naming.** A component name, repository name, network location, or possession of a schema-conforming object is not proof of authority.
+4. **Exact contract provenance is mandatory.** Every Evidence Receipt and Decision Receipt identifies the exact 40-character EPM contract revision SHA against which it was produced. A version label alone is insufficient.
+5. **Uncertainty is conserved.** `UNKNOWN` and `DEFER` must not be promoted merely because a FAP score, confidence value, or verdict is strong.
+6. **FAP scores are observations, not EPM authority.** A score or verdict may contribute evidence but cannot by itself establish preservation, applicability, authority, temporal admissibility, or permission.
+7. **Material transitions remain EPM-governed.** Identity, purpose, scope, jurisdiction, temporal context, and rule-binding changes cannot be made non-material by caller omission.
+8. **Temporal comparison must be typed and comparable.** Incomparable or untrusted time evidence remains unresolved/fail-closed rather than raising or silently ordering values.
+9. **Decision receipts are non-destructive.** A downstream consumer may add domain execution metadata but may not rewrite the EPM state, decision, failure, rule binding, engine identity, or release SHA represented by the receipt.
+10. **Authority diagnostics retain precedence.** A wrong preservation authority remains `AUTHORITY_MISMATCH`; boundary validation must not conceal the authority failure.
+11. **No cross-component trust by naming.** A component name, repository name, network location, or possession of a schema-conforming object is not proof of authority.
 
 ## Boundary-validation rule
 
@@ -54,6 +59,10 @@ External or raw preservation data enters FAP as untrusted. Translation into an E
 MUST NOT cause the resulting typed proof to become boundary validated.
 
 Trusted in-process code may construct a typed `PreservationProof(boundary_validated=True)` only after the validating component can identify the validation authority, method, basis, and associated evidence.
+
+## Schema execution
+
+Conformance requires executable JSON Schema Draft 2020-12 validation, including date-time format checking, against representative valid and invalid receipt instances. Structural inspection alone is not sufficient evidence of conformance.
 
 ## Release binding
 
