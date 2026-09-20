@@ -112,17 +112,14 @@ def evaluate_evidentiary_envelope(
     component_results: list[Mapping[str, object]] = []
     blocking_components = []
     candidate_properties = set(envelope.material_properties)
-    all_properties = set(envelope.source.properties) | set(envelope.target.properties)
-    for component_name in all_properties:
-        source_value = envelope.source.properties.get(
-            component_name,
-            AssuranceState.UNKNOWN,
-        )
-        target_value = envelope.target.properties.get(
-            component_name,
-            AssuranceState.UNKNOWN,
-        )
-        if source_value != target_value:
+    comparable_properties = (
+        set(envelope.source.properties) & set(envelope.target.properties)
+    )
+    for component_name in comparable_properties:
+        if (
+            envelope.source.properties[component_name]
+            != envelope.target.properties[component_name]
+        ):
             candidate_properties.add(component_name)
 
     for component_name in sorted(candidate_properties):
