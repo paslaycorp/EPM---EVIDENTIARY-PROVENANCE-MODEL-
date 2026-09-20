@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:epm:schema:authority-decision-receipt:v1",
+  "title": "EPM Authority Decision Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "transition_id",
+    "decision",
+    "failure",
+    "reason",
+    "permitted",
+    "fail_closed",
+    "grant_id",
+    "validator_id",
+    "constraints",
+    "evidence_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "epm.authority-decision-receipt/1.0"
+    },
+    "transition_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "enum": [
+        "AUTHORIZED",
+        "AUTHORIZED_WITH_CONSTRAINTS",
+        "DEFER",
+        "QUARANTINE",
+        "DENY"
+      ]
+    },
+    "failure": {
+      "enum": [
+        "NONE",
+        "INVALID_REQUEST",
+        "AUTHORITY_UNESTABLISHED",
+        "BOUNDARY_UNVALIDATED",
+        "EVIDENCE_UNESTABLISHED",
+        "ACTOR_MISMATCH",
+        "ACTION_MISMATCH",
+        "RESOURCE_MISMATCH",
+        "PURPOSE_MISMATCH",
+        "SCOPE_MISMATCH",
+        "JURISDICTION_MISMATCH",
+        "POLICY_MISMATCH",
+        "AUTHORITY_MISMATCH",
+        "TEMPORAL_MISMATCH",
+        "AUTHORITY_REVOKED"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "permitted": {
+      "type": "boolean"
+    },
+    "fail_closed": {
+      "type": "boolean"
+    },
+    "grant_id": {
+      "type": ["string", "null"]
+    },
+    "validator_id": {
+      "type": ["string", "null"]
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "permitted": {
+            "const": true
+          }
+        },
+        "required": ["permitted"]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "enum": ["AUTHORIZED", "AUTHORIZED_WITH_CONSTRAINTS"]
+          },
+          "fail_closed": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "permitted": {
+            "const": false
+          }
+        },
+        "required": ["permitted"]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "enum": ["DEFER", "QUARANTINE", "DENY"]
+          },
+          "fail_closed": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
+}
