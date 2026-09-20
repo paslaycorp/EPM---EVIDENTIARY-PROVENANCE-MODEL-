@@ -286,7 +286,7 @@ def establish_authority_basis(
 
 def evaluate_authority_request(
     request: AuthorityRequest,
-    basis: ValidatedAuthorityBasis | Any | None = None,
+    basis: object | None = None,
 ) -> AuthorityResult:
     """Evaluate whether a consequential transition has sufficient authority.
 
