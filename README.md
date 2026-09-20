@@ -102,6 +102,20 @@ This is vNext research, not part of the frozen v0.1.1 or released v0.1.2 runtime
 
 See `AUTHORITY-ENVELOPE-v1.md`.
 
+## Maturity boundary
+
+EPM Core currently stops at **definition of admissibility**. Enforcement, execution, and evidence of execution remain separate external layers.
+
+The current maturity state is:
+
+```text
+M1 / definition_only
+```
+
+Future maturity may integrate these layers into one distribution, but it may not collapse their identities or allow EPM Core to acquire execution authority by implication.
+
+See `EPM-MATURITY-BOUNDARY-v1.md` and `contracts/epm-maturity-boundary-v1.json`.
+
 ## Supply-chain proof
 
 EPM's hardened supply-chain workflow can verify an immutable release target without rewriting it. The current v0.1.2 proof chain includes controlled build identity, SBOM generation, artifact digests, machine-readable evidence receipts, independent verification, and GitHub/Sigstore attestation.
