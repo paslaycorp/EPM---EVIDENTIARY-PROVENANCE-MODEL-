@@ -230,14 +230,28 @@ def evaluate_transition(
         property_name,
         AssuranceState.UNKNOWN,
     )
-    if source_value in {AssuranceState.UNKNOWN, AssuranceState.CONTRADICTED}:
+    if source_value is AssuranceState.UNKNOWN:
         return _result(
             transition,
             property_name,
             AssuranceState.UNKNOWN,
             Decision.DEFER,
             FailureCode.NONE,
-            "Required source assurance is unknown or contradictory; no invalidity is fabricated.",
+            "Required source assurance is unknown; no invalidity is fabricated.",
+        )
+    if source_value is AssuranceState.CONTRADICTED:
+        decision = (
+            Decision.DENY
+            if consequence.lower() == "critical"
+            else Decision.QUARANTINE
+        )
+        return _result(
+            transition,
+            property_name,
+            AssuranceState.CONTRADICTED,
+            decision,
+            FailureCode.CONTRADICTORY_EVIDENCE,
+            "Required source assurance is contradicted; contradiction is preserved as a typed blocking condition.",
         )
     if not is_material(transition, property_name):
         if _is_valid_source(source_value):
