@@ -10,6 +10,15 @@ from .assurance import (
     Transition,
 )
 from .audit import AuditArtifact, build_audit_artifact
+from .authority import (
+    AuthorityFailureCode,
+    AuthorityGrant,
+    AuthorityRequest,
+    AuthorityResult,
+    ValidatedAuthorityBasis,
+    establish_authority_basis,
+    evaluate_authority_request,
+)
 from .availability import (
     AvailabilityIngestionError,
     GitHubActionsRunReceipt,
@@ -37,6 +46,10 @@ __all__ = [
     "AssuranceContext",
     "AssuranceState",
     "AuditArtifact",
+    "AuthorityFailureCode",
+    "AuthorityGrant",
+    "AuthorityRequest",
+    "AuthorityResult",
     "AvailabilityAttestation",
     "AvailabilityIngestionError",
     "Constraint",
@@ -57,10 +70,13 @@ __all__ = [
     "State",
     "TemporalAvailability",
     "Transition",
+    "ValidatedAuthorityBasis",
     "assess_temporal_availability",
     "assess_transition",
     "audit_state",
     "build_audit_artifact",
+    "establish_authority_basis",
+    "evaluate_authority_request",
     "evaluate_constraint",
     "ingest_github_actions_run",
     "inspect_state",
