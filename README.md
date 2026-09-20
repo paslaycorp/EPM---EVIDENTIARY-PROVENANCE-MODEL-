@@ -86,6 +86,22 @@ The contract keeps responsibilities separate:
 
 FAP scores, confidence values, or verdicts do not automatically become EPM authority.
 
+## Authority Envelope v1 — vNext research
+
+Post-release `main` carries staged work for a domain-neutral authority contract that generalizes the existing evidence/use boundary into consequential action control.
+
+Its central invariant is:
+
+```text
+capability != authority
+```
+
+A proposed action is explicitly bound to actor, action, resource, purpose, scope, jurisdiction, time, governing authority and policy. Raw caller claims cannot self-assert boundary validation. Non-authorized outcomes are execution-blocking, and explicit constraints remain attached to constrained authorization.
+
+This is vNext research, not part of the frozen v0.1.1 or released v0.1.2 runtime and not a production deployment claim.
+
+See `AUTHORITY-ENVELOPE-v1.md`.
+
 ## Supply-chain proof
 
 EPM's hardened supply-chain workflow can verify an immutable release target without rewriting it. The current v0.1.2 proof chain includes controlled build identity, SBOM generation, artifact digests, machine-readable evidence receipts, independent verification, and GitHub/Sigstore attestation.
