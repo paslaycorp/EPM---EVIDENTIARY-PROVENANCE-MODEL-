@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/epm/schemas/epm-fap-decision-receipt-v1.schema.json",
+  "title": "EPM-FAP Decision Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_version",
+    "receipt_id",
+    "epm_engine_version",
+    "epm_release_sha",
+    "transition_id",
+    "source_evidence_id",
+    "property",
+    "state",
+    "decision",
+    "failure",
+    "reason",
+    "rule",
+    "evidence_refs",
+    "fail_closed",
+    "evaluated_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "epm-fap-decision-receipt/1.0"},
+    "contract_version": {"const": "epm-fap-assurance/1.0"},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "epm_engine_version": {"type": "string", "pattern": "^epm-engine/[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "epm_release_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "transition_id": {"type": "string", "minLength": 1},
+    "source_evidence_id": {"type": "string", "minLength": 1},
+    "property": {"enum": ["integrity", "provenance", "identity", "evidence", "applicability"]},
+    "state": {"enum": ["PRESERVED", "CHANGED", "INVALIDATED", "UNKNOWN", "CONTRADICTED", "VALID"]},
+    "decision": {"enum": ["AUTHORIZED", "AUTHORIZED_WITH_CONSTRAINTS", "DEFER", "QUARANTINE", "DENY"]},
+    "failure": {"enum": ["NONE", "MISAPPLICATION", "AUTHORITY_MISMATCH", "JURISDICTION_MISMATCH", "TEMPORAL_MISMATCH", "RULE_MISMATCH", "COMPOSITION_UNRESOLVED", "PRESERVATION_UNESTABLISHED", "CONTRADICTORY_EVIDENCE"]},
+    "reason": {"type": "string"},
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "version", "authority"],
+      "properties": {
+        "rule_id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "authority": {"type": "string", "minLength": 1},
+        "jurisdiction": {"type": ["string", "null"]},
+        "effective_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "fail_closed": {"type": "boolean"},
+    "evaluated_at": {"type": "string", "format": "date-time"}
+  }
+}
