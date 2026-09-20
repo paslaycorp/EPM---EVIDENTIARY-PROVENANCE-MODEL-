@@ -80,7 +80,7 @@ def evaluate_evidentiary_envelope(
             property_name=property_name,
             state=AssuranceState.UNKNOWN,
             decision=decision,
-            failure=FailureCode.SCHEMA_UNSUPPORTED,
+            failure=FailureCode.PRESERVATION_UNESTABLISHED,
             reason=(
                 "Envelope schema is unsupported; semantic capability was not "
                 "established, so authorization is withheld."
