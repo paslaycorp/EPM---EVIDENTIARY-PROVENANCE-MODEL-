@@ -1,0 +1,115 @@
+{
+  "schema_version": "epm.maturity-boundary/1.0",
+  "contract_id": "epm-core-maturity-boundary-v1",
+  "current_stage": "definition_only",
+  "core_boundary": {
+    "owns": [
+      "admissibility_evaluation",
+      "evidence_authority_binding",
+      "explicit_constraint_definition",
+      "fail_closed_decision_state",
+      "decision_receipt_emission"
+    ],
+    "does_not_own": [
+      "external_mutation",
+      "credential_exercise",
+      "network_action",
+      "process_execution",
+      "external_constraint_enforcement",
+      "executor_compliance_proof",
+      "production_deployment_authority"
+    ]
+  },
+  "layers": [
+    {
+      "id": "definition",
+      "owner": "EPM Core",
+      "status": "active",
+      "responsibility": "Determine admissibility and emit an evidence-bound decision."
+    },
+    {
+      "id": "enforcement",
+      "owner": "External Authority Enforcement Adapter",
+      "status": "future",
+      "responsibility": "Translate an admissibility decision into enforceable runtime limits."
+    },
+    {
+      "id": "execution",
+      "owner": "External Executor",
+      "status": "future",
+      "responsibility": "Perform an operation only within externally enforced limits."
+    },
+    {
+      "id": "execution_evidence",
+      "owner": "External Execution Evidence Layer",
+      "status": "future",
+      "responsibility": "Record what actually occurred without rewriting the prior decision."
+    }
+  ],
+  "permanent_invariants": [
+    "definition != enforcement",
+    "enforcement != execution",
+    "execution != execution_evidence",
+    "evaluation_does_not_create_authority",
+    "authorization_does_not_imply_execution",
+    "execution_evidence_does_not_retroactively_authorize",
+    "later_maturity_does_not_rewrite_earlier_evidence",
+    "integrated_distribution_does_not_collapse_layer_identity"
+  ],
+  "maturity_gates": [
+    {
+      "stage": "M1",
+      "name": "definition_only",
+      "required_evidence": [
+        "authority_envelope_contract",
+        "decision_receipt_schema",
+        "fail_closed_tests"
+      ]
+    },
+    {
+      "stage": "M2",
+      "name": "reference_enforcement",
+      "required_evidence": [
+        "non_production_adapter",
+        "constraint_translation_tests",
+        "no_direct_execution_from_epm_core"
+      ]
+    },
+    {
+      "stage": "M3",
+      "name": "reference_execution",
+      "required_evidence": [
+        "non_production_constrained_executor",
+        "execution_receipt",
+        "authorized_executes_test",
+        "denied_does_not_execute_test"
+      ]
+    },
+    {
+      "stage": "M4",
+      "name": "independent_adversarial_validation",
+      "required_evidence": [
+        "boundary_bypass_attacks",
+        "replay_attacks",
+        "revocation_attacks",
+        "toctou_attacks",
+        "independent_reproduction"
+      ]
+    },
+    {
+      "stage": "M5",
+      "name": "integrated_distribution",
+      "required_evidence": [
+        "separate_versioned_components",
+        "replaceable_enforcement_layer",
+        "replaceable_executor",
+        "independent_execution_evidence",
+        "production_authority_review"
+      ]
+    }
+  ],
+  "frozen_release_refs": {
+    "v0.1.1": "87903f2d53531bf28d97f1271af62b6d9b3e64be",
+    "v0.1.2": "bb0559ddb8eff7f78acc432c0334ce7596c1045c"
+  }
+}
