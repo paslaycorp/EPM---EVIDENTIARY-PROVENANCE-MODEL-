@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from epm import AssuranceState, Decision, FailureCode, Property
+from epm import AssuranceState, Decision, FailureCode
+from epm.assurance import Property
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_SCHEMA = ROOT / "schemas" / "epm-fap-evidence-receipt-v1.schema.json"
