@@ -1,0 +1,86 @@
+{
+  "manifest_type": "epm.constitutional_trial_receipt",
+  "schema_version": "0.1",
+  "observed_on": "2026-09-20",
+  "repository": "paslaycorp/EPM---EVIDENTIARY-PROVENANCE-MODEL-",
+  "stable_seed_ref": "v0.1.2",
+  "immutable_reference_branch": "trials/constitutional-v0.1.2",
+  "trial_branch": "vnext/constitutional-trials-v0.1.2",
+  "draft_pr": 27,
+  "tested_head": "56a0733afe1c61804a0261469af7e94477e19cbb",
+  "workflow": {
+    "name": "EPM Runtime CI",
+    "run_id": 35512559156,
+    "run_number": 199,
+    "context": "pull_request compatibility run against current main",
+    "python": [
+      "3.12",
+      "3.13"
+    ],
+    "pytest_tests_per_runtime": 113,
+    "blackbox_gauntlet": "PASS",
+    "certification_suite": "PASS",
+    "distribution_build": "PASS",
+    "overall": "PASS"
+  },
+  "trial_sets": {
+    "A": {
+      "purpose": "baseline characterization",
+      "result": "PASS",
+      "assertions": [
+        "unknown conservation",
+        "caller materiality bypass resistance for applicability",
+        "authority mismatch fail-closed behavior",
+        "future-rule non-retroactivity",
+        "future-evidence non-retroactivity",
+        "computation-to-observation separation",
+        "observation external-origin requirement",
+        "derivation does not manufacture resolution",
+        "revision reopens without erasing prior history"
+      ]
+    },
+    "B": {
+      "purpose": "falsification of stronger constitutional invariants",
+      "initial_result": "3 reproducible failures",
+      "repaired_result": "PASS",
+      "repaired_findings": [
+        "CONTRADICTED is preserved as a typed blocking state",
+        "unsupported envelope schema cannot authorize",
+        "unresolved material assurance component blocks global authorization"
+      ]
+    },
+    "C": {
+      "purpose": "composition and hidden-materiality hardening",
+      "initial_result": "hidden explicit property-state change could authorize when omitted from material_properties",
+      "repaired_result": "PASS",
+      "repaired_findings": [
+        "explicit source-to-target property changes are automatically material",
+        "target omission remains distinct from explicit UNKNOWN",
+        "contradicted material components remain typed",
+        "valid material component preservation can authorize composition",
+        "noncritical unsupported schema fails closed as QUARANTINE"
+      ]
+    }
+  },
+  "constitutional_properties_exercised": [
+    "authority non-transmutation",
+    "unknown preservation",
+    "contradiction preservation",
+    "temporal non-retroactivity",
+    "model-world/source-type separation",
+    "revision without erasure",
+    "schema capability boundary",
+    "composition integrity",
+    "materiality boundary",
+    "fail-closed behavior"
+  ],
+  "claim_boundary": [
+    "This is experimental trial evidence, not a release.",
+    "This is not a production conformance certification.",
+    "This does not modify the v0.1.2 tag or production authority.",
+    "The PR remains draft and must not be merged solely because this receipt is green."
+  ],
+  "known_maintenance_observation": [
+    "GitHub Actions reports Node 20 deprecation warnings for pinned checkout/setup-python actions while forcing Node 24 runtime; unrelated to constitutional trial results."
+  ]
+}
