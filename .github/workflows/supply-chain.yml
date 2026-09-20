@@ -79,7 +79,12 @@ jobs:
           )
           PY
 
-          python -m pip install --no-deps             "packaging==26.3"             "pyproject_hooks==1.3.3"             "build==1.6.1"             "setuptools==84.0.0"             "wheel==0.48.0"
+          python -m pip install --no-deps \
+            "packaging==26.3" \
+            "pyproject_hooks==1.3.3" \
+            "build==1.6.1" \
+            "setuptools==84.0.0" \
+            "wheel==0.48.0"
 
           python - <<'PY'
           import importlib.metadata as metadata
@@ -357,7 +362,12 @@ jobs:
         run: |
           set -euo pipefail
           cd dist
-          sha256sum             *.whl             *.tar.gz             *.cdx.json             EPM-RELEASE-EVIDENCE.json             | sort > SHA256SUMS
+          sha256sum \
+            *.whl \
+            *.tar.gz \
+            *.cdx.json \
+            EPM-RELEASE-EVIDENCE.json \
+            | sort > SHA256SUMS
           cat SHA256SUMS
 
       - name: Upload package proof bundle
@@ -496,7 +506,12 @@ jobs:
 
             verified=0
             for attempt in 1 2 3 4; do
-              if gh attestation verify "$file"                 --repo "$GITHUB_REPOSITORY"                 --signer-workflow "$signer"                 --source-digest "$GITHUB_SHA"                 --source-ref "$GITHUB_REF"                 --deny-self-hosted-runners; then
+              if gh attestation verify "$file" \
+                --repo "$GITHUB_REPOSITORY" \
+                --signer-workflow "$signer" \
+                --source-digest "$GITHUB_SHA" \
+                --source-ref "$GITHUB_REF" \
+                --deny-self-hosted-runners; then
                 verified=1
                 break
               fi
