@@ -1,9 +1,10 @@
-from datetime import UTC, datetime, timedelta
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator\nfrom jsonschema.exceptions import ValidationError
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import ValidationError
 
 from epm.assurance import Decision
 from epm.authority import (
@@ -281,7 +282,7 @@ def test_authority_request_schema_rejects_self_asserted_validation():
 
     hostile = dict(payload)
     hostile["boundary_validated"] = True
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         Draft202012Validator(schema).validate(hostile)
 
 
