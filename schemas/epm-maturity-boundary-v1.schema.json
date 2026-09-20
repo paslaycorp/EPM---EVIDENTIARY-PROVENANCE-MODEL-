@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:epm:schema:maturity-boundary:v1",
+  "title": "EPM Maturity Boundary v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_id",
+    "current_stage",
+    "core_boundary",
+    "layers",
+    "permanent_invariants",
+    "maturity_gates",
+    "frozen_release_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "epm.maturity-boundary/1.0"
+    },
+    "contract_id": {
+      "const": "epm-core-maturity-boundary-v1"
+    },
+    "current_stage": {
+      "const": "definition_only"
+    },
+    "core_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owns", "does_not_own"],
+      "properties": {
+        "owns": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "does_not_own": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "owner", "status", "responsibility"],
+        "properties": {
+          "id": {
+            "enum": ["definition", "enforcement", "execution", "execution_evidence"]
+          },
+          "owner": {"type": "string", "minLength": 1},
+          "status": {"enum": ["active", "future"]},
+          "responsibility": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "permanent_invariants": {
+      "type": "array",
+      "minItems": 8,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "maturity_gates": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "name", "required_evidence"],
+        "properties": {
+          "stage": {"enum": ["M1", "M2", "M3", "M4", "M5"]},
+          "name": {"type": "string", "minLength": 1},
+          "required_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "frozen_release_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["v0.1.1", "v0.1.2"],
+      "properties": {
+        "v0.1.1": {
+          "const": "87903f2d53531bf28d97f1271af62b6d9b3e64be"
+        },
+        "v0.1.2": {
+          "const": "bb0559ddb8eff7f78acc432c0334ce7596c1045c"
+        }
+      }
+    }
+  }
+}
