@@ -1,47 +1,41 @@
 # EPM — Evidentiary Provenance Model
 
-**Domain-neutral evidentiary integrity and transition-assurance engine**  
-**Current release: v0.1.1 — corrective production release**
+**Domain-neutral evidentiary provenance, integrity, and transition-assurance engine**
 
-EPM prevents evidence, conclusions, and downstream decisions from gaining certainty, applicability, authority, or temporal legitimacy that their evidence and governing context do not support.
+**Current released runtime: v0.1.2**
 
-Its core question is:
+EPM preserves boundaries between evidence, inference, applicability, authority, time, and permitted action. It is designed to prevent a downstream system from acquiring certainty or authority that its evidence and governing context do not support.
 
-> Even if this evidence is valid, are we legitimately allowed to use it here, now, under this rule, for this purpose, and with this consequence?
+EPM is not a universal truth engine, a centralized trust score, or a substitute for domain authority.
 
-EPM is not a universal truth engine and does not emit a master confidence score.
+## Released boundary
 
-## Current release boundary
+Current corrective release:
 
-The verified v0.1.1 runtime is commit:
+- release: `v0.1.2`
+- exact release commit: `bb0559ddb8eff7f78acc432c0334ce7596c1045c`
+- engine identity: `epm-engine/0.1.2`
+- certified Python targets: 3.12 and 3.13
+
+Historical v0.1.1 remains preserved at:
 
 `87903f2d53531bf28d97f1271af62b6d9b3e64be`
 
-Release tag:
+The v0.1.2 release corrected the applicability/materiality boundary without rewriting the v0.1.1 history.
 
-`v0.1.1`
+Post-release work on `main` may add governance, interoperability contracts, supply-chain proof, documentation, and adversarial validation. Those changes do not retroactively alter an earlier tagged release.
 
-Final release branch:
+## Core question
 
-`release/epm-v0.1.1-2026-09-14`
+> Even if this evidence is valid, may it legitimately be used here, now, under this rule, for this purpose, by this authority, with this consequence?
 
-The runtime is certified on Python 3.12 and 3.13. FAP-Insurance consumes this exact commit in production.
-
-v0.1.1 is a narrow corrective patch over the frozen v0.1.0 release. It adds explicit rejection of governing rules whose `effective_at` occurs after the historical epistemic state being inspected. It does not reopen the epistemic ladder, answer-space semantics, transition authorization model, or connector claims.
-
-Historical v0.1.0 remains preserved at its own release branch and is not rewritten.
-
-Post-release files on `main` add documentation, examples, adversarial validation tooling, governance targets, and supply-chain proof. They do not redefine the v0.1.1 runtime release commit.
-
-## Install
-
-For reproducibility, install the verified release commit directly:
+## Install the released runtime exactly
 
 ```bash
-python -m pip install "git+https://github.com/paslaycorp/EPM---EVIDENTIARY-PROVENANCE-MODEL-.git@87903f2d53531bf28d97f1271af62b6d9b3e64be"
+python -m pip install "git+https://github.com/paslaycorp/EPM---EVIDENTIARY-PROVENANCE-MODEL-.git@bb0559ddb8eff7f78acc432c0334ce7596c1045c"
 ```
 
-Verify the engine identifier:
+Verify runtime identity:
 
 ```bash
 python -c "import epm; print(epm.EPM_ENGINE_VERSION)"
@@ -50,27 +44,8 @@ python -c "import epm; print(epm.EPM_ENGINE_VERSION)"
 Expected:
 
 ```text
-epm-engine/0.1.1
+epm-engine/0.1.2
 ```
-
-## Public API
-
-```python
-from epm import assess_transition, inspect_state, audit_state
-```
-
-EPM also exposes typed primitives for:
-
-- assurance context and rule binding;
-- evidentiary transition envelopes;
-- preservation proofs;
-- evidence availability and temporal checks;
-- source typing;
-- constraints and answer-space handling;
-- justification graphs and dependency invalidation;
-- deterministic audit artifacts.
-
-Reference adapters are included for insurance, legal/evidentiary, and scientific evidence use.
 
 ## Decision vocabulary
 
@@ -82,159 +57,72 @@ EPM returns explicit decision states rather than a scalar truth score:
 - `QUARANTINE`
 - `DENY`
 
-Typical failure boundaries include:
+Typical failure boundaries include purpose, scope, jurisdiction, temporal mismatch, rule/version mismatch, authority mismatch, unresolved composition, unavailable evidence, preservation failure, and contradiction.
 
-- misapplication across purpose or scope;
-- authority mismatch;
-- jurisdiction mismatch;
-- temporal mismatch;
-- rule/version mismatch;
-- unresolved composition;
-- unestablished preservation;
-- contradictory evidence.
+## Epistemic boundaries
 
-## Temporal integrity
+EPM preserves distinctions such as:
 
-EPM treats these as different facts:
-
-`claimed event time != evidence availability time != decision-state time`
-
-A later receipt does not make evidence available to an earlier decision state. Production FAP proves a bounded authenticated receipt boundary: when FAP actually possessed an exact evidence reference. That does not prove when the underlying media originally came into existence.
-
-v0.1.1 adds a second temporal guard at state inspection:
-
-`rule effective time > historical state time -> RULE_NOT_YET_EFFECTIVE`
-
-A rule cannot silently govern a state that predates the rule itself.
-
-## Epistemic boundary
-
-The runtime preserves the distinction:
-
-`same evidence + more computation != new external observation`
-
-Computation may produce a valid derivation without upgrading that derivation into a new observation.
-
-Likewise:
-
-`constraint != resolution`
-
-A narrowed or even singleton answer-space can remain unresolved until legitimate external observation supplies the missing discriminator outcome.
-
-## Five-minute start
-
-See [`QUICKSTART.md`](QUICKSTART.md).
-
-Executable examples are under [`examples/`](examples/):
-
-- `basic_transition.py` — unchanged context authorizes;
-- `temporal_availability.py` — later evidence cannot be used retroactively;
-- `future_effective_rule.py` — a future-effective rule cannot govern an earlier state;
-- `legal_secondary_use.py` — intact evidence can still be denied for unauthorized secondary use;
-- `legal_chain_of_custody.py` — explicit custody/use preservation authorizes one legal use while unauthorized secondary disclosure is denied.
-
-## Blackbox Gauntlet
-
-The repository includes a machine-readable adversarial harness:
-
-[`EPM-BLACKBOX-GAUNTLET.md`](EPM-BLACKBOX-GAUNTLET.md)
-
-Run it with:
-
-```bash
-python tools/epm_gauntlet.py --output validation-receipt.json
+```text
+valid evidence != authorized use
+later evidence != evidence available earlier
+more computation != new external observation
+constraint != resolution
+provenance != truth
+verification != authority
 ```
 
-The gauntlet attacks purpose, scope, jurisdiction, time, rule/version, authority, UNKNOWN inflation, future-rule leakage, evidence-availability leakage, computation-to-observation laundering, and derivation-to-resolution laundering.
+Unknowns and contradictions remain representable instead of being silently normalized into confidence.
 
-It emits an `epm.external-validation-receipt/1.0` artifact instead of a confidence score. A failed invariant makes the process exit non-zero.
+## EPM ↔ FAP Assurance Contract
 
-## EPM Break Challenge
+Current `main` contains the bounded EPM/FAP Assurance Contract v1.
 
-The frozen v0.1.1 boundary is open to independent adversarial review. This is a technical falsification challenge, not a cash bounty.
+The contract keeps responsibilities separate:
 
-The target does not move:
+- **EPM** owns assurance semantics and decision-boundary vocabulary.
+- **FAP-Core** remains an evidence producer / verification component.
+- **FAP-Insurance** remains a domain adapter and EPM runtime consumer.
 
-`87903f2d53531bf28d97f1271af62b6d9b3e64be`
-
-See [`EPM-BREAK-CHALLENGE.md`](EPM-BREAK-CHALLENGE.md) for the challenge rules and [`BREAK-CHALLENGE-ANNOUNCEMENT.md`](BREAK-CHALLENGE-ANNOUNCEMENT.md) for the concise public version.
-
-> Don’t tell me EPM works. Don’t tell me it doesn’t. Make the evidence decide.
-
-## External validation
-
-The recommended red-team target remains deliberately narrow:
-
-> Make EPM authorize or accept a state where evidence gains applicability, authority, certainty, or temporal legitimacy that it did not possess.
-
-See [`EXTERNAL-RED-TEAM.md`](EXTERNAL-RED-TEAM.md) for the attack contract and reporting format.
-
-The Blackbox Gauntlet does not replace independent review. It gives an independent reviewer a common attack deck and a reproducible receipt format.
+FAP scores, confidence values, or verdicts do not automatically become EPM authority.
 
 ## Supply-chain proof
 
-See [`SUPPLY-CHAIN.md`](SUPPLY-CHAIN.md).
+EPM's hardened supply-chain workflow can verify an immutable release target without rewriting it. The current v0.1.2 proof chain includes controlled build identity, SBOM generation, artifact digests, machine-readable evidence receipts, independent verification, and GitHub/Sigstore attestation.
 
-The post-release supply-chain workflow can build an exact target ref and produce:
+Supply-chain proof establishes provenance of the built artifact. It does not prove universal correctness.
 
-- wheel and source distribution;
-- SHA-256 manifest;
-- CycloneDX 1.6 SBOM;
-- GitHub build provenance attestations.
+## Release attestation
 
-The v0.1.1 tag remains immutable; newer workflow machinery checks out that exact target instead of moving the tag.
+A separate post-release governance contract is being developed for a common machine-readable chain across EPM, FAP-Core, and FAP-Insurance:
 
-## Standards interoperability
+```text
+proposal → exact source → required checks → artifacts → dependencies
+→ deployment evidence → runtime identity → rollback target
+```
 
-See [`STANDARDS-INTEROP.md`](STANDARDS-INTEROP.md).
+The attestation is evidence, not deployment authority.
 
-The central interoperability rule is:
+## Adversarial validation
 
-`provenance proof != permission proof`
+The repository includes the EPM Blackbox Gauntlet and the EPM Break Challenge.
 
-EPM can consume validated provenance evidence from systems such as C2PA while separately governing whether that evidence may support a particular action under the current purpose, scope, authority, jurisdiction, rule, time, and consequence.
+The active public challenge target is:
 
-## Governance
+- release: `v0.1.2`
+- exact commit: `bb0559ddb8eff7f78acc432c0334ce7596c1045c`
 
-The exact intended `main` ruleset is committed under:
+The challenge is a technical falsification exercise, not a cash bounty.
 
-- [`08_GOVERNANCE/main-ruleset-target.json`](08_GOVERNANCE/main-ruleset-target.json)
-- [`08_GOVERNANCE/main-ruleset-application.md`](08_GOVERNANCE/main-ruleset-application.md)
+See:
 
-The ruleset requires the PR path, both Python 3.12/3.13 EPM Runtime CI checks, strict up-to-date branches, force-push blocking, deletion blocking, and a named PR-only emergency bypass. Applying the repository-admin control remains a GitHub administration boundary.
-
-## Repository map
-
-- `src/epm/` — standalone runtime
-- `tests/` — certification and adversarial tests
-- `examples/` — executable reference demonstrations
-- `tools/` — external validation tooling
-- `schemas/` — machine-readable interoperability/validation schemas
-- `01_CANONICAL/` — canonical architecture material
-- `03_SPEC/` — adversarial specification
-- `04_TESTS/` — conformance records
-- `05_COUNTEREXAMPLES/` — failure cases
-- `07_DECISION_LOG/` — provenance and release decisions
-- `08_GOVERNANCE/` — change-control rules
-
-Historical research artifacts remain preserved. They are not rewritten to manufacture a cleaner chronology.
-
-## Non-claims
-
-EPM v0.1.1 does **not** claim:
-
-- universal truth determination;
-- universal domain completeness;
-- that confidence overrides typed uncertainty;
-- that capture time proves evidence availability;
-- that a valid artifact is automatically applicable to a new purpose;
-- that computation becomes observation;
-- formal C2PA certification or endorsement;
-- formal SLSA level conformance;
-- universal legal admissibility;
-- TVC implementation;
-- Variant Hunter implementation.
+- `QUICKSTART.md`
+- `RUNTIME.md`
+- `EPM-BLACKBOX-GAUNTLET.md`
+- `EPM-BREAK-CHALLENGE.md`
+- `SUPPLY-CHAIN.md`
+- `STANDARDS-INTEROP.md`
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+MIT.
