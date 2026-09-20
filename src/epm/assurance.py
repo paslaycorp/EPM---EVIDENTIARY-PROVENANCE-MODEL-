@@ -159,15 +159,12 @@ def _context_or_rule_changed(transition: Transition) -> bool:
 def is_material(transition: Transition, property_name: str) -> bool:
     if property_name in transition.material_properties:
         return True
-    source_value = transition.source.properties.get(
-        property_name,
-        AssuranceState.UNKNOWN,
-    )
-    target_value = transition.target.properties.get(
-        property_name,
-        AssuranceState.UNKNOWN,
-    )
-    if source_value != target_value:
+    if (
+        property_name in transition.source.properties
+        and property_name in transition.target.properties
+        and transition.source.properties[property_name]
+        != transition.target.properties[property_name]
+    ):
         return True
     return property_name == Property.APPLICABILITY.value and _context_or_rule_changed(transition)
 
