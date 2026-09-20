@@ -111,7 +111,21 @@ def evaluate_evidentiary_envelope(
 
     component_results: list[Mapping[str, object]] = []
     blocking_components = []
-    for component_name in sorted(envelope.material_properties):
+    candidate_properties = set(envelope.material_properties)
+    all_properties = set(envelope.source.properties) | set(envelope.target.properties)
+    for component_name in all_properties:
+        source_value = envelope.source.properties.get(
+            component_name,
+            AssuranceState.UNKNOWN,
+        )
+        target_value = envelope.target.properties.get(
+            component_name,
+            AssuranceState.UNKNOWN,
+        )
+        if source_value != target_value:
+            candidate_properties.add(component_name)
+
+    for component_name in sorted(candidate_properties):
         if component_name == property_name:
             continue
         component = evaluate_transition(
