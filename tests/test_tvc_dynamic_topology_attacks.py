@@ -158,8 +158,8 @@ def test_partial_graph_can_hide_a_material_dependency():
     assert len(complete_results) == len(partial_results) + 1
 
 
-def test_parallel_dependency_provenance_is_currently_collapsed():
-    """Falsification: provenance-distinct parallel edges share one obligation key."""
+def test_parallel_dependency_provenance_is_retained_as_ambiguity():
+    """One logical dependency retains every provenance assertion, not first seen."""
     base = _base_graph()
     graph = JustificationGraph(
         nodes=base.nodes,
@@ -182,6 +182,10 @@ def test_parallel_dependency_provenance_is_currently_collapsed():
     ]
 
     assert len(sensor_obligations) == 1
+    assert sensor_obligations[0].provenance_refs == (
+        "prov:second-independent-edge-assertion", "prov:sensor-derive",
+    )
+    assert sensor_obligations[0].provenance_ref == ""
     assert len(
         [
             edge

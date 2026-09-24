@@ -23,6 +23,21 @@ The candidate technical distinction is the **conclusion-conditioned closure cycl
 
 ## Non-claims
 
+### Integrity repair after the independent PR #31 review
+
+The experimental prospective contract now uses schema
+`tvc.prospective-closure/v2`, binding the complete canonical payload before
+anchor verification and reconstruction. Closure reporting uses explicit policy
+priorities, and parallel graph provenance remains retained and unresolved.
+The original review and failing witnesses are preserved under
+`review_v2/baseline.json`; the parent `5597b0b` remains the unmodified record.
+See [the repair protocol](review_v2/PROTOCOL.md) and
+[the repair record](review_v2/REPAIR-RECORD.md). Old prospective digests are not
+silently migrated or reissued with historical dates.
+
+The independent controls still reproduce the tested detection behavior.
+Integrity repair does not establish an irreducible TVC capability.
+
 This experiment does not claim novelty, patentability, production readiness, or inclusion in normative EPM.
 
 It does not authorize state transitions and does not rewrite EPM state. TVC emits an assurance result for a caller or governor to interpret.

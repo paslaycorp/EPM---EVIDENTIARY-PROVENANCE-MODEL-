@@ -25,6 +25,7 @@ class DerivedGraphObligation:
     source_id: str
     target_id: str
     provenance_ref: str
+    provenance_refs: tuple[str, ...] = ()
 
 
 def derive_graph_obligations(
@@ -42,8 +43,11 @@ def derive_graph_obligations(
         return ()
 
     incoming: dict[str, list] = {node_id: [] for node_id in graph.nodes}
+    provenance_by_edge: dict[tuple[str, str, str], set[str]] = {}
     for edge in graph.edges:
         incoming.setdefault(edge.target_id, []).append(edge)
+        identity = (edge.source_id, edge.target_id, edge.relation.value)
+        provenance_by_edge.setdefault(identity, set()).add(edge.provenance_ref)
 
     obligations: list[DerivedGraphObligation] = []
     visited_edges: set[tuple[str, str, str]] = set()
@@ -58,13 +62,16 @@ def derive_graph_obligations(
             source = graph.nodes.get(edge.source_id)
             if source is None:
                 continue
+            provenance_refs = tuple(sorted(provenance_by_edge[key]))
             obligations.append(
                 DerivedGraphObligation(
                     obligation_id=f"{edge.relation.value}:{edge.source_id}->{edge.target_id}",
                     kind=edge.relation.value,
                     source_id=edge.source_id,
                     target_id=edge.target_id,
-                    provenance_ref=edge.provenance_ref,
+                    # A first-seen provenance is not a justified resolution.
+                    provenance_ref=provenance_refs[0] if len(provenance_refs) == 1 else "",
+                    provenance_refs=provenance_refs,
                 )
             )
             # Evidence/attestation nodes terminate a dependency chain; derived
@@ -101,6 +108,18 @@ def assess_graph_obligation_availability(
 
     results: list[TemporalAvailabilityResult] = []
     for obligation in obligations:
+        if len(obligation.provenance_refs) > 1:
+            results.append(
+                TemporalAvailabilityResult(
+                    evidence_id=obligation.obligation_id,
+                    state_at=state_at,
+                    status=TemporalAvailability.UNKNOWN,
+                    trusted=False,
+                    reason_code="DEPENDENCY_PROVENANCE_AMBIGUOUS",
+                    reason="Parallel graph assertions have distinct provenance; availability cannot resolve their identity.",
+                )
+            )
+            continue
         if obligation.obligation_id in duplicate_ids:
             results.append(
                 TemporalAvailabilityResult(

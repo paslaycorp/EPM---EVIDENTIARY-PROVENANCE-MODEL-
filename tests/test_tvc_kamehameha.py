@@ -117,4 +117,6 @@ def test_bahamut_zero_permutation_invariance_of_outcome():
     assert a.status == b.status == tvc.ClosureStatus.FAILED
     assert set(a.failed) == set(b.failed)
     assert set(a.unresolved) == set(b.unresolved)
-    assert a.closure_boundary != b.closure_boundary
+    # Priority is explicit policy data; tuple order no longer chooses a boundary.
+    # The pre-repair counterexample remains recorded at parent 5597b0b.
+    assert a == b

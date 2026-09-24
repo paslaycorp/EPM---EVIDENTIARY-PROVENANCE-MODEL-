@@ -30,6 +30,7 @@ class Obligation:
     obligation_id: str
     description: str
     required_for: str
+    priority: int = 0
 
 
 @dataclass(frozen=True)
@@ -66,8 +67,14 @@ Reverify = Callable[[EpistemicSnapshot, frozenset[str]], str]
 
 
 def derive_obligations(snapshot: EpistemicSnapshot, policy: ObligationPolicy) -> tuple[Obligation, ...]:
-    """Derive obligations from the asserted epistemic standing itself."""
-    return tuple(policy.get(snapshot.asserted_standing, ()))
+    """Derive obligations in explicit priority order, independent of input order.
+
+    Priority is policy data. Equal priorities have a total textual tie-break;
+    reversing a tuple cannot change which failed obligation is reported first.
+    """
+    return tuple(sorted(policy.get(snapshot.asserted_standing, ()), key=lambda o: (
+        o.priority, o.obligation_id, o.required_for, o.description,
+    )))
 
 
 def validate_historical_obligations(
@@ -140,13 +147,13 @@ def evaluate_closure(
 
 DEFAULT_POLICY: ObligationPolicy = {
     "EVIDENCED": (
-        Obligation("support", "material supporting evidence is admissible", "EVIDENCED"),
-        Obligation("provenance", "material support has valid provenance", "EVIDENCED"),
+        Obligation("support", "material supporting evidence is admissible", "EVIDENCED", priority=10),
+        Obligation("provenance", "material support has valid provenance", "EVIDENCED", priority=20),
     ),
     "INFERRED": (
-        Obligation("support", "material supporting evidence is admissible", "INFERRED"),
-        Obligation("provenance", "material support has valid provenance", "INFERRED"),
-        Obligation("entailment", "inferential relation is established", "INFERRED"),
-        Obligation("contradictions", "material contradictions are dispositioned", "INFERRED"),
+        Obligation("support", "material supporting evidence is admissible", "INFERRED", priority=10),
+        Obligation("provenance", "material support has valid provenance", "INFERRED", priority=20),
+        Obligation("entailment", "inferential relation is established", "INFERRED", priority=30),
+        Obligation("contradictions", "material contradictions are dispositioned", "INFERRED", priority=40),
     ),
 }
