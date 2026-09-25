@@ -1,3 +1,11 @@
+from pathlib import Path
+import sys
+
+# EPM's full certification workflow invokes the pytest console script, whose
+# sys.path does not include the repository root. Keep the research harness out
+# of the installable EPM distribution while making this one test import it.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from experiments.ih_tnl.fixtures import canonical_case, label_swapped_case
 from experiments.ih_tnl.model import FailureCode, Resolution
 from experiments.ih_tnl.reference_targets import (
