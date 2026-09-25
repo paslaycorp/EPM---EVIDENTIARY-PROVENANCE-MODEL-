@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ih-tnl/symphony-receipt.schema.json",
+  "title": "IH-TNL Symphony Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "target",
+    "classification",
+    "passed",
+    "cases",
+    "ensemble_digest",
+    "target_metadata"
+  ],
+  "properties": {
+    "schema": {"const": "ih-tnl.symphony/0.3"},
+    "target": {"type": "string", "minLength": 1},
+    "classification": {"type": "string", "minLength": 1},
+    "passed": {"type": "boolean"},
+    "ensemble_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "target_metadata": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": [
+          "case_name",
+          "public_score_digest",
+          "transcript_digest",
+          "movements",
+          "verifier_passed",
+          "findings"
+        ],
+        "properties": {
+          "case_name": {"type": "string", "minLength": 1},
+          "public_score_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "transcript_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "verifier_passed": {"type": "boolean"},
+          "movements": {
+            "type": "array",
+            "minItems": 5,
+            "items": {
+              "type": "object",
+              "required": ["movement", "checks", "passed"],
+              "properties": {
+                "movement": {"type": "string"},
+                "checks": {
+                  "type": "object",
+                  "additionalProperties": {"type": "boolean"}
+                },
+                "passed": {"type": "boolean"}
+              }
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "phase", "message"],
+              "properties": {
+                "code": {"type": "string"},
+                "phase": {"type": "string"},
+                "message": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
