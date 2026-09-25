@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ih-tnl/target-response.schema.json",
+  "title": "IH-TNL TargetResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "resolution",
+    "basis_evidence_ids",
+    "claimed_discriminator_ids",
+    "required_discriminator",
+    "historical_state",
+    "resolution_time",
+    "transition_basis_ids"
+  ],
+  "properties": {
+    "resolution": {
+      "enum": ["UNRESOLVED", "HISTORY_A", "HISTORY_B"]
+    },
+    "basis_evidence_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "claimed_discriminator_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "required_discriminator": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "predicate", "temporal_scope"],
+          "properties": {
+            "kind": {"type": "string", "minLength": 1},
+            "predicate": {"type": "string", "minLength": 1},
+            "temporal_scope": {"enum": ["T2", "T3"]}
+          }
+        }
+      ]
+    },
+    "historical_state": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["UNRESOLVED", "HISTORY_A", "HISTORY_B"]
+      }
+    },
+    "resolution_time": {
+      "type": ["string", "null"],
+      "enum": ["T2", "T3", null]
+    },
+    "transition_basis_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "explanation": {"type": "string"}
+  }
+}
