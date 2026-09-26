@@ -1,0 +1,267 @@
+{
+  "base": "adb1c31cdb428816c95a3cf98c9a4427c13ec482",
+  "core_sha256": {
+    "src/epm/__init__.py": "1fb703347cfe51fb805d2b0a1716cf60e75a5b94c9f8bfe0a8ed12b4ecd015bf",
+    "src/epm/adapters/__init__.py": "6f07dcf461906dc5b3f24429e78c54751565a54642b8362e101907348c7f46a7",
+    "src/epm/adapters/common.py": "6df3685186a6c6eba722edc82f3def973a4a93c6e2bbe6b115455e218b309799",
+    "src/epm/adapters/insurance.py": "04a6a25a0519cca1307e8bc306e582160d81f1dd23c0d74c531cd49f75d5aff6",
+    "src/epm/adapters/legal.py": "2518a25b26fea7299f26ae2498606ab4bbeb77f12643f7a1efd7fe9c41ba40c4",
+    "src/epm/adapters/scientific.py": "02d252e905ef25fd2f6b98c596793cbf23d6a487116d2e3af00058596bbef2eb",
+    "src/epm/assurance.py": "31e3eee1342aa4e0f055ad98dbae5c306e6b2b0463ae107e47a20413b4a2f14d",
+    "src/epm/audit.py": "b2e0d0e59a0c0694991aae9f16cd463813fc02a840354bb4c7701b966d4edd93",
+    "src/epm/authority.py": "12477e9449ab853a8a9bec63f95304ba8871ac89564960f4bc7d7c2e059fab75",
+    "src/epm/availability.py": "817ae61e1ae9303792f2bcdc3b04e286ef50f51ebb88a981a1b04756f892331f",
+    "src/epm/constraints.py": "1ba33b1df2b56a64fd23f966548d8a458185e930a1ae914c56cc32762732d99f",
+    "src/epm/engine.py": "20c216774875416fff53d2c43e3071a887af5bbec3637b1795aece189f248502",
+    "src/epm/envelope.py": "240b723bb003909c8dcc25769945e1aaee9d48f9c52e4fe5956c54cda6bea9be",
+    "src/epm/governor.py": "eb350fbd475d8dda8426fe3d6832dbb30dee21867b6db2f1729961983f4c8ec0",
+    "src/epm/justification.py": "3ef44e282ae3a8ab7fb08426011d61c04698e4cfb988c47a9f789b5e2258fdaa",
+    "src/epm/resolution.py": "32d4a7320782a75ee4ecb5e41a5388320604a9249990cc70311c526c06a4e727",
+    "src/epm/sources.py": "aaa5bee4a94cc3866e170a986494a8154b56157a069e8b2ca18a047696bb5d56",
+    "src/epm/state.py": "2fd90cb9c3d50061489c3a6d4de8ba0d47c786280eda8c84e3cdaa1b3bbc91ca",
+    "src/epm/temporal.py": "6a948c52b71bb3cc0f8dfa9d7b09cd27d43227ff6e15c23c24048ed08083caae"
+  },
+  "core_tree": "2f8abae49ccf8eef326604963c866084edf793ea",
+  "head": "5597b0b5c2130665e69196f3e00c5d75252ee220",
+  "new_regression_before_repair": {
+    "failed": 16,
+    "note": "Includes newly specified v2 schema behavior; the five original payload-forgery witnesses all failed.",
+    "passed": 3
+  },
+  "original_primary_results_sha256": "dbc7943317459d138a58903a4d1b2dd9bbf504d61c6071d4a57ed30bc5d0ddbd",
+  "original_results": {
+    "baseline_gap": {
+      "epm_after_automatic_compilation": [
+        "contradictions"
+      ],
+      "generic": {
+        "boundary": "contradictions",
+        "failed": [],
+        "obligations": [
+          "support",
+          "provenance",
+          "entailment",
+          "contradictions"
+        ],
+        "reproduced": "EVIDENCED",
+        "status": "UNRESOLVED",
+        "unresolved": [
+          "contradictions"
+        ]
+      },
+      "native_availability": [
+        "AVAILABLE"
+      ],
+      "native_explicit_unresolved": [],
+      "native_structural_issues": [],
+      "removed_derivation_control_misses": true,
+      "shared_input_sha256": "c66b48b0ce83c8459e5e8660dfdbddeb31457bb55b66cadf53bea5dbd7f91e06",
+      "tvc": {
+        "boundary": "contradictions",
+        "failed": [],
+        "obligations": [
+          "support",
+          "provenance",
+          "entailment",
+          "contradictions"
+        ],
+        "reproduced": "EVIDENCED",
+        "status": "UNRESOLVED",
+        "unresolved": [
+          "contradictions"
+        ]
+      }
+    },
+    "closure": {
+      "comparisons": 114244,
+      "condition_states": 13,
+      "input_output_sha256": "ae844129fd668208bf6b5c89562b4b615f31d563fb170d70a79b59765449bb5f",
+      "mismatches": 0,
+      "outcomes": {
+        "CLOSED": 339,
+        "DEGRADED": 1,
+        "FAILED": 111040,
+        "UNRESOLVED": 2864
+      },
+      "reconstruction_scopes": [
+        "required",
+        "all"
+      ],
+      "supported_standings": [
+        "EVIDENCED",
+        "INFERRED"
+      ]
+    },
+    "dynamic_graph": {
+      "candidate_evaluations": 1536,
+      "cases": 512,
+      "input_output_sha256": "6074200239bbcbc366d41115205dab8e0670e9511ace7f3404a8a2d624b4c6a0",
+      "mismatches": 0,
+      "parallel_provenance_edges": "separate integrity probe",
+      "seed": 3109232026
+    },
+    "frontier": {
+      "cases": 3211,
+      "compressible": 525,
+      "equal_oracle_budgets": true,
+      "exhaustive_ternary_three_dependency": 2187,
+      "input_output_sha256": "7ead448f1af111de6ab5c15dbd4cf6824a953e7f8e4bb482da979b5369767b48",
+      "mismatches": 0,
+      "nonmonotone_rejected": 2686,
+      "seeded_larger_surfaces": 1024
+    },
+    "gates": {
+      "bounded_reduction": "REPRODUCED_BY_GENERIC_CONTROL",
+      "fixed_input_determinism": "REQUIRES_SEPARATE_MULTIPROCESS_CHECK",
+      "full_output_permutation_invariance": "FAIL_POLICY_BOUNDARY_AND_PARALLEL_PROVENANCE",
+      "irreducible_capability": "NOT_ESTABLISHED",
+      "production_boundary": "PRESERVED",
+      "promotion": "BLOCK_STRONGER_CLAIMS_PENDING_INTEGRITY_FIXES",
+      "prospective_artifact_binding": "FAIL_PAYLOAD_NOT_REBOUND_TO_DIGEST"
+    },
+    "integrity_probes": {
+      "condition_order": {
+        "permutations": 24,
+        "raw_result_invariant": true
+      },
+      "endpoint_negative_control": {
+        "endpoint_equal": true,
+        "full_surface_drift_detected_by_both": true
+      },
+      "frontier_scope": {
+        "disposition": "Sound for baseline-change membership; not a lossless commitment to all non-baseline standings.",
+        "same_frontier_digest": "c487f4ea270896270e51c78bf7168a7465facb13a036ce4400c9c9888d53282e",
+        "surface_a": [
+          "INFERRED",
+          "EVIDENCED",
+          "INFERRED",
+          "EVIDENCED"
+        ],
+        "surface_b": [
+          "INFERRED",
+          "EVIDENCED",
+          "INFERRED",
+          "UNKNOWN"
+        ]
+      },
+      "parallel_provenance": {
+        "disposition": "Order changes retained provenance; preserve parallel edge identity or report ambiguity.",
+        "forward": [
+          [
+            "DERIVATION_INPUT:e->d",
+            "prov-A"
+          ],
+          [
+            "SUPPORTS:d->x",
+            "prov-X"
+          ]
+        ],
+        "reverse": [
+          [
+            "DERIVATION_INPUT:e->d",
+            "prov-B"
+          ],
+          [
+            "SUPPORTS:d->x",
+            "prov-X"
+          ]
+        ]
+      },
+      "policy_order": {
+        "closure_boundaries": [
+          "contradictions",
+          "entailment"
+        ],
+        "disposition": "Known candidate behavior: declare policy order semantic, or canonicalize full reporting before an order-independent claim.",
+        "permutations": 24,
+        "raw_full_certificate_invariant": false,
+        "verdict_stable": true
+      },
+      "prospective_payload_binding": {
+        "anchor_scope": "Local immutable digest registry only; not external trusted time.",
+        "cases": [
+          {
+            "case": "clean",
+            "reference_reason": "CLOSED",
+            "reference_valid": true,
+            "tvc_reason": "CLOSED",
+            "tvc_valid": true
+          },
+          {
+            "case": "semantic-drift",
+            "reference_reason": "PROSPECTIVE_SURFACE_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "PROSPECTIVE_SURFACE_MISMATCH",
+            "tvc_valid": false
+          },
+          {
+            "case": "wrong-assertion",
+            "reference_reason": "ASSERTED_RESULT_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "ASSERTED_RESULT_MISMATCH",
+            "tvc_valid": false
+          },
+          {
+            "case": "wrong-anchor",
+            "reference_reason": "ANCHOR_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "ANCHOR_MISMATCH",
+            "tvc_valid": false
+          },
+          {
+            "case": "changed-transition-id",
+            "reference_reason": "PAYLOAD_DIGEST_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "CLOSED",
+            "tvc_valid": true
+          },
+          {
+            "case": "changed-policy-id",
+            "reference_reason": "PAYLOAD_DIGEST_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "CLOSED",
+            "tvc_valid": true
+          },
+          {
+            "case": "changed-issued-at",
+            "reference_reason": "PAYLOAD_DIGEST_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "CLOSED",
+            "tvc_valid": true
+          },
+          {
+            "case": "changed-prior-standing",
+            "reference_reason": "PAYLOAD_DIGEST_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "CLOSED",
+            "tvc_valid": true
+          },
+          {
+            "case": "replaced-surface-plus-drift",
+            "reference_reason": "PAYLOAD_DIGEST_MISMATCH",
+            "reference_valid": false,
+            "tvc_reason": "CLOSED",
+            "tvc_valid": true
+          }
+        ],
+        "disposition": "Defect, not irreducibility: close_against_contract authenticates the supplied digest but does not recompute it from the supplied payload.",
+        "mismatches": 5
+      },
+      "singleton_negative_control": {
+        "generic_full_frontier_matches": true,
+        "joint_minimal_failures": 4,
+        "singleton_failures": 0
+      }
+    },
+    "protocol_sha256": "8f7472bcfc37fff5f900fd18f04678d866c7dea48ae6622f75326927bc866a6c",
+    "reference_sha256": "84a60e26093db720adc031e4217f46db84c63c2a0256e605d976be3fe3907d3f",
+    "source": {
+      "base": "adb1c31cdb428816c95a3cf98c9a4427c13ec482",
+      "core_tree_base": "2f8abae49ccf8eef326604963c866084edf793ea",
+      "core_tree_head": "2f8abae49ccf8eef326604963c866084edf793ea",
+      "files_verified": 152,
+      "head": "5597b0b5c2130665e69196f3e00c5d75252ee220",
+      "source_unchanged": true
+    }
+  }
+}
